@@ -1,6 +1,11 @@
+import os
 import time
+import re
 
-# from webdriver_manager.chrome import ChromeDriverManager
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
+
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.remote.webdriver import By
 import selenium.webdriver.support.expected_conditions as EC  # noqa
@@ -10,8 +15,39 @@ from selenium.webdriver.chrome.options import Options
 import undetected_chromedriver as uc
 
 
+## TEMP VARIABLES
+EMAIL= os.getenv("EMAIL")
+PASSWORD= os.getenv("PASSWORD")
+
+def check_for_wait_time_page(driver):
+    try:
+        print("Looking for waiting time!")
+        waitTime = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#waitTime")))
+        
+        if waitTime:
+
+            regx = r"wait time is (\d+) min"
+            matches = re.search(regx, waitTime.text)
+            
+            if matches:
+                found = matches.group(1)
+                print(f"Waiting for {str(found)} min due to high volume of traffic...")
+                time.sleep(float(found)*60)
+            else:
+                print(f"Couldn't Detect Exact Waiting Time")
+                print(f"Waiting for 10 min due to high volume of traffic Just in case...")
+                time.sleep(10*60)
+    except:
+        print("No Waiting Time Found!")
+    finally:
+        print("Waiting For Extra 5 sec...")
+        time.sleep(5)
+
+
 def main():
     try:
+        # instance of Options class allows
+        # us to configure Headless Chrome
         options = Options()
 
         # this parameter tells Chrome that
@@ -22,53 +58,60 @@ def main():
         driver = uc.Chrome(options=options)
         
         print("Opening Browser!")
-        driver.get('https://algeria.blsspainvisa.com/mobile-biometric.php')
+        driver.get('https://algeria.blsspainvisa.com')
 
 
         print("Waiting for 20 sec to pass security checks...")
         time.sleep(20)
-        
+
+        check_for_wait_time_page(driver)
+
         try:
-            print("Searching for the Form...")
-            app_form = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#form_mobile_biometric")))
-            if app_form:
-                print("Form Found :-)")
-                firstname_input = driver.find_element(By.CSS_SELECTOR, "#firstname")
-                lastname_input = driver.find_element(By.CSS_SELECTOR, "#lastname")
-                useremail_input = driver.find_element(By.CSS_SELECTOR, "#useremail")
-                phone_input = driver.find_element(By.CSS_SELECTOR, "#phone")
-                city_input = driver.find_element(By.CSS_SELECTOR, "#city")
-                terms_agree_input = driver.find_element(By.CSS_SELECTOR, "#user_consent")
-                captcha_input = driver.find_element(By.CSS_SELECTOR, "#captcha")
-                captcha_img = driver.find_element(By.CSS_SELECTOR, "#captcha-img")
-                captcha_img_change_anchor = driver.find_element(By.CSS_SELECTOR, "#change-image")
-        
-                print("Waiting for 5 sec...")
-                time.sleep(5)
+            print("Searching for Login Link...")
+            login_anchor = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='login.php']")))
+            if login_anchor:
+
+                print("Login Link Found!")
+
+                driver.execute_script('''document.querySelector("a[href='login.php']").click()''')
+                print("Login Link Clicked!")
+
+        except:        
+            print("Login Link not Found!")
+            print("Try again tomorrow :-(")
+            quit()
+
+        check_for_wait_time_page(driver)
+
+        try:
+            print("Searching for Enter Email Form...")
+            form_01 = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#al_login")))
+            if form_01:
+
+                print("Enter Email Form Found :-)")
+                f1_user_email_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[name='user_email']")
+                f1_submit_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[type='submit']")
+
+                print("Waiting for 2 sec...")
+                time.sleep(2)
 
                 # Inputs Values
-                firstname = "X_firstname"
-                lastname = "X_lastname"
-                useremail = "X_useremail"
-                phone = "X_phone"
-                city = "X_city"
-                captcha = "X_captcha"
+                f1_user_email_value = EMAIL
 
                 # Filling Inputs with Values
-                firstname_input.send_keys(firstname)
-                lastname_input.send_keys(lastname)
-                useremail_input.send_keys(useremail)
-                phone_input.send_keys(phone)
-                city_input.send_keys(city)
-                captcha_input.send_keys(captcha)
-                terms_agree_input.click()
-
+                f1_user_email_input.send_keys(f1_user_email_value)
+                print(f'Entered Email "{f1_user_email_value}"')
+                
                 print("Waiting for 5 sec...")
                 time.sleep(5)
 
-                # app_form.submit()
+                f1_submit_input.click()
+                print("Pressed Continue Button")
+
+                print("Waiting for 20 sec...")
+                time.sleep(20)
         except:
-            print("Form not Found!")
+            print("Enter Email Form not Found!")
             print("Try again tomorrow :-(")
 
         print("Saving Last_View.png Screenshot Image...")
@@ -76,14 +119,13 @@ def main():
 
         print("Waiting for 2 sec...")
         time.sleep(2)
-
-        print("Closing Browser!")
-        driver.quit()    
+  
     except Exception as err:
         print("Something went Wrong!")
         print(err)
-# instance of Options class allows
-# us to configure Headless Chrome
+    finally:
+        print("Closing Browser!")
+        driver.quit()  
 
 if __name__ == "__main__":
     main()
