@@ -1,6 +1,11 @@
 # Enviroment Files
 /env
 .env
+credentials.json
+token.json
+__pycache__/*
+*/__pycache__/*
 
 # Test Files
 Last_View.png
+test.py
