@@ -114,8 +114,8 @@ def main():
                 f1_submit_input.click()
                 print("Pressed Continue Button")
 
-                print("Waiting for 20 sec...")
-                time.sleep(20)
+                # print("Waiting for 20 sec...")
+                # time.sleep(20)
         except:
             print("Enter Email Form not Found!")
             print("Try again tomorrow :-(")
@@ -127,34 +127,43 @@ def main():
             otp_email = find_new_message(f1_submit_time)
             print("Retriving OTP Code from Email...")
             otp_code = extract_otp(otp_email)
-            print("Searching for Enter Email Form...")
-            # form_02 = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#al_login")))
-            # if form_02:
 
-            #     print("Enter Email Form Found :-)")
-            #     f1_user_email_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[name='user_email']")
-            #     f1_submit_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[type='submit']")
+            print(f"OTP Code is {otp_code}")
+            print("Searching for Enter OTP & Password Form...")
+            form_02 = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#al_login")))
+            if form_02:
 
-            #     print("Waiting for 2 sec...")
-            #     time.sleep(2)
+                print("Enter OTP & Password Form Found :-)")
+                f2_otp_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[name='otp']")
+                f2_password_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[name='user_password']")
+                f2_submit_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[type='submit']")
 
-            #     # Inputs Values
-            #     f1_user_email_value = EMAIL
+                print("Waiting for 2 sec...")
+                time.sleep(2)
 
-            #     # Filling Inputs with Values
-            #     f1_user_email_input.send_keys(f1_user_email_value)
-            #     print(f'Entered Email "{f1_user_email_value}"')
+                # Inputs Values
+                f2_password_value = PASSWORD
+
+                # Filling Inputs with Values
+                f2_otp_input.send_keys(otp_code)
+                print(f'Entered OTP "{otp_code}"')
                 
-            #     print("Waiting for 5 sec...")
-            #     time.sleep(5)
+                print("Waiting for 2 sec...")
+                time.sleep(2)
 
-            #     f1_submit_input.click()
-            #     print("Pressed Continue Button")
+                f2_password_input.send_keys(f2_password_value)
+                print(f'Entered Password "{f2_password_value}"')
+                
+                print("Waiting for 2 sec...")
+                time.sleep(2)
 
-            print("Waiting for 20 sec...")
-            time.sleep(20)
+                f2_submit_input.click()
+                print("Pressed Login Button")
+
+            print("Waiting for 5 min...")
+            time.sleep(300)
         except:
-            print("Enter Email Form not Found!")
+            print("Enter OTP & Password Form not Found!")
             print("Try again tomorrow :-(")
 
         print("Saving Last_View.png Screenshot Image...")

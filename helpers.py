@@ -2,6 +2,7 @@ import time
 import re
 import base64
 from g_api import GOOGLE
+from datetime import datetime
 
 def find_new_message(submit_time):
     try:
@@ -23,9 +24,11 @@ def find_new_message(submit_time):
 
             msg_time = last_message.get("internalDate")
             msg_datetime = float(msg_time)/1000
-            submit_datetime = submit_time.timestamp()
-
+            submit_datetime = submit_time.timestamp() - 3720  # ALG 1-hr diff & Extra 2 min
+            print("submit_datetime:", submit_time)
+            print("msg_time:", datetime.fromtimestamp(msg_datetime))
             delta_time = msg_datetime - submit_datetime
+            print(delta_time)
 
         return last_message
     except Exception as err:
