@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 import re
 
 from dotenv import load_dotenv
@@ -13,6 +14,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 
 import undetected_chromedriver as uc
+
+from helpers import find_new_message, extract_otp
 
 
 ## TEMP VARIABLES
@@ -83,6 +86,8 @@ def main():
 
         check_for_wait_time_page(driver)
 
+        f1_submit_time = None
+
         try:
             print("Searching for Enter Email Form...")
             form_01 = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#al_login")))
@@ -105,11 +110,49 @@ def main():
                 print("Waiting for 5 sec...")
                 time.sleep(5)
 
+                f1_submit_time = datetime.now()
                 f1_submit_input.click()
                 print("Pressed Continue Button")
 
                 print("Waiting for 20 sec...")
                 time.sleep(20)
+        except:
+            print("Enter Email Form not Found!")
+            print("Try again tomorrow :-(")
+
+        check_for_wait_time_page(driver)
+
+        try:
+            print("Waiting for OTP Email...")
+            otp_email = find_new_message(f1_submit_time)
+            print("Retriving OTP Code from Email...")
+            otp_code = extract_otp(otp_email)
+            print("Searching for Enter Email Form...")
+            # form_02 = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#al_login")))
+            # if form_02:
+
+            #     print("Enter Email Form Found :-)")
+            #     f1_user_email_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[name='user_email']")
+            #     f1_submit_input = driver.find_element(By.CSS_SELECTOR, "#al_login input[type='submit']")
+
+            #     print("Waiting for 2 sec...")
+            #     time.sleep(2)
+
+            #     # Inputs Values
+            #     f1_user_email_value = EMAIL
+
+            #     # Filling Inputs with Values
+            #     f1_user_email_input.send_keys(f1_user_email_value)
+            #     print(f'Entered Email "{f1_user_email_value}"')
+                
+            #     print("Waiting for 5 sec...")
+            #     time.sleep(5)
+
+            #     f1_submit_input.click()
+            #     print("Pressed Continue Button")
+
+            print("Waiting for 20 sec...")
+            time.sleep(20)
         except:
             print("Enter Email Form not Found!")
             print("Try again tomorrow :-(")
