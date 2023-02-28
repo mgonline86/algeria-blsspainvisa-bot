@@ -5,7 +5,11 @@ credentials.json
 token.json
 __pycache__/*
 */__pycache__/*
+notified.json
 
 # Test Files
 Last_View.png
 test.py
+
+# Local Files
+/lib

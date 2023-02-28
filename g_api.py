@@ -1,8 +1,8 @@
 """Google API Class."""
 
-from __future__ import print_function
-
 import os.path
+import base64
+from email.message import EmailMessage
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -10,8 +10,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = [
+        'https://www.googleapis.com/auth/gmail.readonly',
+        'https://www.googleapis.com/auth/gmail.send',
+    ]
 
 
 class GOOGLE():
@@ -62,7 +66,6 @@ class GOOGLE():
             # TODO(developer) - Handle errors from gmail API.
             print(f'An error occurred: {error}')
 
-
     def list_messages(self) -> list:
         """List all labels in the user's mailbox."""
         try:
@@ -81,7 +84,6 @@ class GOOGLE():
             # TODO(developer) - Handle errors from gmail API.
             print(f'An error occurred: {error}')
 
-
     def get_message_by_id(self, id:str, format:str=None) -> dict:
         """Get the specified message."""
         try:
@@ -98,3 +100,35 @@ class GOOGLE():
         except HttpError as error:
             # TODO(developer) - Handle errors from gmail API.
             print(f'An error occurred: {error}')
+
+    def send_message(self, to:str, subject:str, _message:str, _from:str=None) -> dict:
+        """Create and send an email message
+        Print the returned  message id
+        Returns: Message object, including message id"""
+
+        try:
+            service = build('gmail', 'v1', credentials=self.creds)
+            message = EmailMessage()
+
+            message.set_content(_message)
+
+            message['To'] = to
+            message['Subject'] = subject
+            if _from:
+                message['From'] = _from
+
+            # encoded message
+            encoded_message = base64.urlsafe_b64encode(message.as_bytes()) \
+                .decode()
+
+            create_message = {
+                'raw': encoded_message
+            }
+            # pylint: disable=E1101
+            send_message = (service.users().messages().send
+                            (userId="me", body=create_message).execute())
+            print(F'Sent Message Id: {send_message["id"]}')
+        except HttpError as error:
+            print(F'An error occurred: {error}')
+            send_message = None
+        return send_message

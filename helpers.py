@@ -1,4 +1,6 @@
+import os
 import time
+import json
 import re
 import base64
 from g_api import GOOGLE
@@ -75,3 +77,46 @@ def extract_otp(message):
         print("Error:")
         print(err)
         return
+    
+def runner(func):
+    """Take a Function and Run it to Infinity with restarting it on error."""
+    while True:
+        try:
+            func()
+        except Exception as err:
+            print("[!] An Error Occured:")
+            print(err)
+            print(f"[!] Restarting '{func.__name__}() Function' ...")
+            continue
+
+def run_func_on_interval(func, interval_time):
+    """Take a Function & Interval Time in seconds.
+
+    It runs the passed Function only on two conditions:
+     1- No updated_at timestamp is saved.
+     2- Interval Time has exceeded when comparing the saved
+        updated_at timestamp.
+    """
+    notify_file_exist = False
+    now_timestamp = datetime.now().timestamp()
+    do_update = True
+
+    if os.path.isfile("notified.json") and os.access("notified.json", os.R_OK):
+        # checks if notified.json exists
+        notify_file_exist = True
+
+    if notify_file_exist:
+        with open("notified.json", "r") as jsonFile:
+            old_data = json.load(jsonFile)
+            last_timestamp = old_data.get("updated_at")
+            time_diff = now_timestamp - last_timestamp
+            if time_diff < interval_time:
+                do_update = False
+    if do_update:
+        # Run the function
+        func()
+        # Save update time
+        with open("notified.json", "w") as jsonFile:
+            data = { "updated_at" : now_timestamp}
+            json.dump(data, jsonFile)
+
