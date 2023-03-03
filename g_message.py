@@ -1,17 +1,17 @@
 import os
 from pathlib import Path
 
-import nltk
-punkt_path = 'nltk_data/tokenizers/punkt' if os.name == 'posix' else 'AppData/Roaming/nltk_data/tokenizers/punkt'
-stopwords_path = 'nltk_data/corpora/stopwords' if os.name == 'posix' else 'AppData/Roaming/nltk_data/corpora/stopwords'
-if not os.path.exists(Path.home() / punkt_path):
-    nltk.download('punkt')
-if not os.path.exists(Path.home() / stopwords_path):
-    nltk.download('stopwords')
-from nltk.tokenize import word_tokenize, sent_tokenize
-from nltk.corpus import stopwords
-import pyderman
-import pyperclip
+# import nltk
+# punkt_path = 'nltk_data/tokenizers/punkt' if os.name == 'posix' else 'AppData/Roaming/nltk_data/tokenizers/punkt'
+# stopwords_path = 'nltk_data/corpora/stopwords' if os.name == 'posix' else 'AppData/Roaming/nltk_data/corpora/stopwords'
+# if not os.path.exists(Path.home() / punkt_path):
+#     nltk.download('punkt')
+# if not os.path.exists(Path.home() / stopwords_path):
+#     nltk.download('stopwords')
+# from nltk.tokenize import word_tokenize, sent_tokenize
+# from nltk.corpus import stopwords
+# import pyderman
+# import pyperclip
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -19,9 +19,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-import undetected_chromedriver as uc
+# import undetected_chromedriver as uc
 
-from cpotp._version import __version__
+# from cpotp._version import __version__
 
 
 GOOGLE_MESSAGES_URL = "https://messages.google.com/web"
@@ -37,7 +37,8 @@ if not ('CHROME_USER_DATA_DIR' in os.environ and os.path.exists(Path(os.environ[
 
 class CpOTP:
     def __init__(self):
-        self._driver_path = pyderman.install(browser=pyderman.chrome, verbose=False)
+        # self._driver_path = pyderman.install(browser=pyderman.chrome, verbose=False)
+        self._driver_path = ""
 
     def _init_driver(self, headless=True):
         options = Options()
@@ -98,22 +99,22 @@ class CpOTP:
             driver.quit()
         return last_sms
 
-    def _extract_otp(self, sms):
-        stop = set(stopwords.words('english'))
-        window_size = 3
-        tokens = []
-        for sent in sent_tokenize(sms):
-            for word in word_tokenize(sent):
-                word = word.lower().strip()
-                if word not in stop:
-                    tokens.append(word)
-        for idx, word in enumerate(tokens):
-            if word == 'otp' or word == 'code':
-                context_tokens = tokens[idx+1:idx+window_size+1] + tokens[idx-window_size:idx]
-                for context_token in context_tokens:
-                    if context_token.isdigit() and len(context_token) >= 4 and len(context_token) <= 6:
-                        return context_token
-        return ''
+    # def _extract_otp(self, sms):
+    #     stop = set(stopwords.words('english'))
+    #     window_size = 3
+    #     tokens = []
+    #     for sent in sent_tokenize(sms):
+    #         for word in word_tokenize(sent):
+    #             word = word.lower().strip()
+    #             if word not in stop:
+    #                 tokens.append(word)
+    #     for idx, word in enumerate(tokens):
+    #         if word == 'otp' or word == 'code':
+    #             context_tokens = tokens[idx+1:idx+window_size+1] + tokens[idx-window_size:idx]
+    #             for context_token in context_tokens:
+    #                 if context_token.isdigit() and len(context_token) >= 4 and len(context_token) <= 6:
+    #                     return context_token
+    #     return ''
 
     def get_otp(self):
         sms = self._grab_last_sms()
@@ -123,6 +124,6 @@ class CpOTP:
         if otp == '':
             print('OTP not found in the last received sms.')
         else:
-            pyperclip.copy(otp)
+            # pyperclip.copy(otp)
             print(f'OTP has been copied to the clipboard: {otp}')
             return otp

@@ -114,8 +114,6 @@ def main():
                 f1_submit_input.click()
                 print("Pressed Continue Button")
 
-                # print("Waiting for 20 sec...")
-                # time.sleep(20)
         except:
             print("Enter Email Form not Found!")
             print("Try again tomorrow :-(")
@@ -160,8 +158,8 @@ def main():
                 f2_submit_input.click()
                 print("Pressed Login Button")
 
-            print("Waiting for 5 min...")
-            time.sleep(300)
+            print("Waiting for 60 min...")
+            time.sleep(1*60*60)
         except:
             print("Enter OTP & Password Form not Found!")
             print("Try again tomorrow :-(")

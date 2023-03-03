@@ -34,9 +34,23 @@ def find_new_message(submit_time):
 
         return last_message
     except Exception as err:
-        print("Error at  'is_new_message()':")
+        print("Error at  'is_new_message()':\n")
         print(err)
         return
+
+def decode_email_body(body_data):
+    try:
+        """Take encoded body data string, return decoded string."""
+        # The Body of the message is in Encrypted format. So, we have to decode it.
+        # Get the data and decode it with base 64 decoder.
+        data = body_data.replace("-","+").replace("_","/")
+        decoded_data = base64.b64decode(data)
+        return decoded_data
+    except Exception as err:
+        print("Error in decode_email_body():\n")
+        print(err)
+        return
+
 
 def extract_otp(message):
     try:
@@ -61,8 +75,7 @@ def extract_otp(message):
         # The Body of the message is in Encrypted format. So, we have to decode it.
         # Get the data and decode it with base 64 decoder.
         data = payload['body']['data']
-        data = data.replace("-","+").replace("_","/")
-        decoded_data = base64.b64decode(data)
+        decoded_data = decode_email_body(data)
         
         OTP_regx = r">OTP - (\d+)"
         OTP_matches = re.search(OTP_regx, str(decoded_data))
@@ -74,7 +87,7 @@ def extract_otp(message):
             return
 
     except Exception as err:
-        print("Error:")
+        print("Error in extract_otp():\n")
         print(err)
         return
     
@@ -120,3 +133,40 @@ def run_func_on_interval(func, interval_time):
             data = { "updated_at" : now_timestamp}
             json.dump(data, jsonFile)
 
+def extract_confirm_link(message):
+    try:
+        # Get value of 'payload' from dictionary 'message'
+        payload = message['payload']
+        headers = payload['headers']
+
+        # Look for Subject and Sender Email in the headers
+        for d in headers:
+            if d['name'] == 'Subject':
+                subject = d['value']
+            if d['name'] == 'From':
+                sender = d['value']
+
+        # Printing the subject, sender's email and message
+        print("Subject: ", subject)
+        print("From: ", sender)
+
+        if not ("info.spain@blshelpline.com" in sender):
+            return None
+
+        # The Body of the message is in Encrypted format. So, we have to decode it.
+        # Get the data and decode it with base 64 decoder.
+        data = payload['body']['data']
+        decoded_str = decode_email_body(data)
+        
+        url_regx = r'<a href="(.+?)">Click here.+?<\/a>'
+        url_matches = re.search(url_regx, str(decoded_str))
+        if url_matches:
+            url = url_matches.group(1)
+            return url.strip()
+        else:
+            return
+
+    except Exception as err:
+        print("Error in extract_confirm_link():\n")
+        print(err)
+        return
