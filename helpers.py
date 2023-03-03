@@ -170,3 +170,19 @@ def extract_confirm_link(message):
         print("Error in extract_confirm_link():\n")
         print(err)
         return
+
+def extract_otp_from_html(html_str:str) -> str:
+    try:
+        OTP_regx = r">Your OTP is (\d+)<"
+        OTP_matches = re.search(OTP_regx, str(html_str))
+
+        if OTP_matches:
+            OTP = OTP_matches.group(1)
+            return OTP.strip()
+        else:
+            return
+
+    except Exception as err:
+        print("Error in extract_otp():\n")
+        print(err)
+        return
