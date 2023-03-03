@@ -158,10 +158,55 @@ def main():
                 f2_submit_input.click()
                 print("Pressed Login Button")
 
+        except:
+            print("Enter OTP & Password Form not Found!")
+            print("Try again tomorrow :-(")
+
+        check_for_wait_time_page(driver)
+
+        try:
+            # print("Waiting for OTP Email...")
+            # otp_email = find_new_message(f1_submit_time)
+            # print("Retriving OTP Code from Email...")
+            # otp_code = extract_otp(otp_email)
+            # print(f"OTP Code is {otp_code}")
+
+            print("Searching for Appointment Booking Form...")
+            form_03 = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#alg_app_first")))
+            if form_03:
+
+                print("Appointment Booking Form Found :-)")
+                # f3_password_input = driver.find_element(By.CSS_SELECTOR, "#alg_app_first input[name='user_password']")
+                f3_app_type1_input = driver.find_element(By.CSS_SELECTOR, "#app_type1")
+                f3_app_type2_input = driver.find_element(By.CSS_SELECTOR, "#app_type2")
+                # f3_submit_input = driver.find_element(By.CSS_SELECTOR, "#alg_app_first input[type='submit']")
+
+                # print("Waiting for 2 sec...")
+                # time.sleep(2)
+
+                # # Inputs Values
+                # f3_password_value = PASSWORD
+
+                # # Filling Inputs with Values
+                # f3_otp_input.send_keys(otp_code)
+                # print(f'Entered OTP "{otp_code}"')
+                
+                # print("Waiting for 2 sec...")
+                # time.sleep(2)
+
+                # f3_password_input.send_keys(f3_password_value)
+                # print(f'Entered Password "{f3_password_value}"')
+                
+                # print("Waiting for 2 sec...")
+                # time.sleep(2)
+
+                # f3_submit_input.click()
+                # print("Pressed Login Button")
+
             print("Waiting for 60 min...")
             time.sleep(1*60*60)
         except:
-            print("Enter OTP & Password Form not Found!")
+            print("Appointment Booking Form not Found!")
             print("Try again tomorrow :-(")
 
         print("Saving Last_View.png Screenshot Image...")
