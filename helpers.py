@@ -162,7 +162,7 @@ def extract_confirm_link(message):
         url_matches = re.search(url_regx, str(decoded_str))
         if url_matches:
             url = url_matches.group(1)
-            return url.strip()
+            return str(url.strip())
         else:
             return
 

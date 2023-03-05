@@ -32,7 +32,7 @@ PASSWORD= os.getenv("PASSWORD")
 def check_for_wait_time_page(driver):
     try:
         print("Looking for waiting time!")
-        waitTime = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#waitTime")))
+        waitTime = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#waitTime")))
         
         if waitTime:
 
@@ -49,9 +49,9 @@ def check_for_wait_time_page(driver):
                 time.sleep(10*60)
     except:
         print("No Waiting Time Found!")
-    finally:
-        print("Waiting For Extra 5 sec...")
-        time.sleep(5)
+    # finally:
+    #     print("Waiting For Extra 5 sec...")
+    #     time.sleep(5)
 
 
 def main():
@@ -268,7 +268,6 @@ def main():
                 f3_phone_code_input = driver.find_element(By.CSS_SELECTOR, "#phone_code")
                 f3_phone_input = driver.find_element(By.CSS_SELECTOR, "#phone")
                 f3_email_input = driver.find_element(By.CSS_SELECTOR, "#email")
-                f3_otpvr_input = driver.find_element(By.CSS_SELECTOR, "#otpvr")
                 f3_csrftokenvalue_input = driver.find_element(By.CSS_SELECTOR, "#csrftokenvalue")
                 
                 f3_member_select = Select(driver.find_element(By.CSS_SELECTOR, "#member"))
@@ -334,9 +333,13 @@ def main():
                 print("Opening Verify URL in a New Browser")
                 sub_options = Options()
                 sub_driver = MyUDC(options=sub_options)
-                sub_driver.get(verify_email)
+                sub_driver.get(verify_url)
+                
+                print("Waiting for 3 sec...")
+                time.sleep(3)
 
                 check_for_wait_time_page(sub_driver)
+
 
                 verify_otp = None
 
@@ -345,16 +348,16 @@ def main():
                     sub_email_input = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "form input[name='email']")))
                     if sub_email_input:
                         print("Email Input Found!")
-
-                        sub_submit_btn = sub_driver.find_element(By.CSS_SELECTOR, "form input[type='submit']")
-
-                        sub_email_input.send_keys(f3_email_input)
-                        print(f'Entered Email is "{f3_email_input}"')
+                        sub_email_input.send_keys(email_u_input)
+                        print(f'Entered Email is "{email_u_input}"')
         
                         print("Waiting for 1 sec...")
                         time.sleep(1)
 
+                        print("Pressing Submit Button...")
+                        sub_submit_btn = sub_driver.find_element(By.CSS_SELECTOR, "form input[type='submit']")
                         sub_submit_btn.click()
+                        # sub_driver.execute_script('''document.querySelector("form input[type='submit']").click()''')
                         print("Pressed Submit Button!")
 
                         print("Searching for OTP div...")
@@ -363,15 +366,20 @@ def main():
 
                         if verify_otp_div:
                             verify_otp = extract_otp_from_html(verify_otp_div.text)
-                except:        
-                    print("Email Input not Found!")
-                    print("Try again tomorrow :-(")
+                except Exception as err:        
+                    print("Error at Email Input:\n")
+                    print(err)
                     quit()
                 finally:
-                    sub_driver.close()
+                    sub_driver.quit()
 
                 if verify_otp:
+                    print("Waiting for 2 sec...")
+                    time.sleep(2)
+                    f3_otpvr_input = driver.find_element(By.CSS_SELECTOR, "#otpvr")
+                    print("Entering Verify Token...")
                     f3_otpvr_input.send_keys(verify_otp)
+                    print(f"Entered Verify Token is {verify_otp}")
                 else:
                     raise ValueError("Couldn't Optain Verify Token!")
                 
