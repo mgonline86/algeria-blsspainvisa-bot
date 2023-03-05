@@ -21,11 +21,7 @@ import undetected_chromedriver as uc
 # Prevent undetected_chromedriver from auto-close browser
 class MyUDC(uc.Chrome):
     def __del__(self):
-        try:
-            self.service.process.kill()
-        except:  # noqa
-            pass
-        # self.quit()
+        pass
 
 
 
