@@ -14,9 +14,19 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
 
+from helpers import find_new_message, extract_otp, extract_confirm_link, extract_otp_from_html
+
 import undetected_chromedriver as uc
 
-from helpers import find_new_message, extract_otp, extract_confirm_link, extract_otp_from_html
+# Prevent undetected_chromedriver from auto-close browser
+class MyUDC(uc.Chrome):
+    def __del__(self):
+        try:
+            self.service.process.kill()
+        except:  # noqa
+            pass
+        # self.quit()
+
 
 
 ## TEMP VARIABLES
@@ -59,7 +69,7 @@ def main():
         # options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
 
         # initializing webdriver for Chrome with our options
-        driver = uc.Chrome(options=options)
+        driver = MyUDC(options=options)
         
         print("Opening Browser!")
         driver.get('https://algeria.blsspainvisa.com')
@@ -122,6 +132,17 @@ def main():
         check_for_wait_time_page(driver)
 
         try:
+            try:
+                print("Checking if we need to switch account...")
+                otp_was_sent = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div > div > div > div > div > p")))
+
+                if otp_was_sent:
+                    print("We need to switch account!")
+                    quit()
+            except:
+                print("No need to switch account.")
+                pass
+
             print("Waiting for OTP Email...")
             otp_email = find_new_message(f1_submit_time)
             print("Retriving OTP Code from Email...")
@@ -222,11 +243,17 @@ def main():
                     "Tizi-Ouzou": "15#Tizi-Ouzou#10",
                     "Tlemcen": "14#Tlemcen#9"
                 }
-                
+                f3_category_select_opts = {
+                    "Appointment Category" : "",
+                    "Normal" : "Normal",
+                    "Premium" : "Premium",
+                }
+
                 # User Inputs
                 app_type_u_input = "Individual"
                 members_count_u_input = "2"
                 juridiction_u_input = "Sétif"
+                app_cat_u_input = "Normal"
                 email_u_input = EMAIL
 
 
@@ -250,9 +277,7 @@ def main():
                 
                 f3_member_select = Select(driver.find_element(By.CSS_SELECTOR, "#member"))
                 f3_juridiction_select = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
-                f3_category_select = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
                 
-                f3_request_verification_btn = driver.find_element(By.CSS_SELECTOR, "#verification_code")
 
                 f3_submit_btn = driver.find_element(By.CSS_SELECTOR, "input[name='save']")
 
@@ -274,9 +299,18 @@ def main():
                 time.sleep(1)
 
                 # # Filling Inputs with Values
+                print(f'Selecting Juridiction...')
                 f3_juridiction_select.select_by_visible_text(juridiction_u_input)
                 print(f'Selected Juridiction is "{juridiction_u_input}"')
 
+                print("Waiting for 3 sec...")
+                time.sleep(3)
+
+                print(f'Selecting Appointment Category...')
+                f3_category_select = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
+                f3_category_select.select_by_visible_text(app_cat_u_input)
+                print(f'Selected Appointment Category is "{app_cat_u_input}"')
+                
                 print("Waiting for 3 sec...")
                 time.sleep(3)
 
@@ -287,7 +321,7 @@ def main():
                 # time.sleep(1)
 
                 f3_submit_time = datetime.now()
-                f3_request_verification_btn.click()
+                driver.execute_script('''document.querySelector("#verification_code").click()''')
                 print(f'Requested Verification Token Button Clicked')
 
 
@@ -302,7 +336,8 @@ def main():
                     raise ValueError("Couldn't Retrive Verify URL!")
                 
                 print("Opening Verify URL in a New Browser")
-                sub_driver = uc.Chrome(options=options)
+                sub_options = Options()
+                sub_driver = MyUDC(options=sub_options)
                 sub_driver.get(verify_email)
 
                 check_for_wait_time_page(sub_driver)
