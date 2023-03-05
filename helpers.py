@@ -173,7 +173,7 @@ def extract_confirm_link(message):
 
 def extract_otp_from_html(html_str:str) -> str:
     try:
-        OTP_regx = r">Your OTP is (\d+)<"
+        OTP_regx = r"Your OTP is (\d+)"
         OTP_matches = re.search(OTP_regx, str(html_str))
 
         if OTP_matches:

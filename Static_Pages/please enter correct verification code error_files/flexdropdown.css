@@ -1,0 +1,32 @@
+
+
+.flexdropdownmenu:before{ content:""; position:absolute; top:-20px; left:20%; border:solid 10px; border-color:transparent transparent #666 transparent;}
+.flexdropdownmenu, .flexdropdownmenu ul{ margin:0; padding:0; position:absolute; left:0; top:0; list-style-type:none; border:1px solid #333; border-bottom-width:0; visibility:hidden; display:none; width:300px; box-sizing:border-box;}
+.flexdropdownmenu li{position:relative; width:100%; }
+.flexdropdownmenu li a{display:block; width:100%; box-sizing:border-box; color:black; background:rgba(0,0,0,0.8); border-bottom:1px solid #666; text-decoration:none; padding:15px; color:#fff; position:relative; }
+.flexdropdownmenu li a:hover:before{ content:""; position:absolute; bottom:5px; right:5px; border:solid 5px; border-color:transparent #fff #fff transparent;}
+* html .flexdropdownmenu li{display:inline-block; width:100%; }
+.flexdropdownmenu li a:hover, .flexdropdownmenu li.selected>a{background:rgba(0,0,0,0.9); color:#fff; }
+.rightarrowclass{position:absolute; top:6px; right:5px; }
+.ddshadow{position:absolute; left:0; top:0; width:0; height:0; background-color:#ccc;}
+.toplevelshadow{margin:5px 0 0 5px;}
+.ddcss3support .ddshadow.toplevelshadow {margin:0;}
+.ddcss3support .ddshadow {background-color:transparent; box-shadow:5px 5px 5px #aaa;
+-moz-box-shadow:5px 5px 5px #aaa; -webkit-box-shadow:5px 5px 5px #aaa; }
+
+div.flexoverlay{
+width:100%; height:100%; left:0; top:0; position:fixed; background:black; -webkit-transform-style:preserve-3d; opacity:0.7; z-index:1000;
+display:none; }
+div.flexmenumobile{
+position:fixed; color:white; width:250px; 
+display:none; }
+div.flexmenumobile a{color:white; text-decoration:none; }
+div.flexmenumobile ul{
+list-style:none; width:100%; top:0; left:0; background:white; border:1px solid black; margin:0; padding:0; position:absolute; opacity:0; visibility:hidden; }
+div.flexmenumobile ul li{border-bottom:1px solid gray; position:relative; font-weight:bold; }
+div.flexmenumobile ul li.breadcrumb{
+cursor:pointer; padding:8px; padding-left:5px; background:gray; font-size:1.1em; }
+div.flexmenumobile ul li a{display:block; color:black; background:#fae7a9; border-bottom:1px solid black; padding:6px; font-size:1.1em; }
+div.flexmenumobile ul li a:hover{background:#F0CE7D; }
+div.flexmenumobile ul img.backarrow{margin-right:5px; }
+div.flexmenumobile ul img.rightarrow{position:absolute; right:5px; top:10px; }
