@@ -14,9 +14,12 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
 
-from helpers import find_new_message, extract_otp, extract_confirm_link, extract_otp_from_html
-
 import undetected_chromedriver as uc
+
+from webdriver_manager.chrome import ChromeDriverManager
+
+from helpers import find_new_message, extract_otp, extract_confirm_link, extract_otp_from_html
+from h2captcha import solve_hcaptcha
 
 # Prevent undetected_chromedriver from auto-close browser
 class MyUDC(uc.Chrome):
@@ -65,7 +68,7 @@ def main():
         # options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
 
         # initializing webdriver for Chrome with our options
-        driver = MyUDC(options=options)
+        driver = MyUDC(driver_executable_path=ChromeDriverManager().install(), options=options)
         
         print("Opening Browser!")
         driver.get('https://algeria.blsspainvisa.com')
@@ -274,8 +277,6 @@ def main():
                 f3_juridiction_select = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
                 
 
-                f3_submit_btn = driver.find_element(By.CSS_SELECTOR, "input[name='save']")
-
                 # if application type is family
                 if app_type_u_input == "Family":
                     app_type = "Family"
@@ -293,13 +294,21 @@ def main():
                 print("Waiting for 1 sec...")
                 time.sleep(1)
 
-                # # Filling Inputs with Values
+                print("Closing Popup")
+                # close_popup = driver.find_element(By.CSS_SELECTOR, ".popup-appCloseIcon")
+                # if close_popup:
+                #     close_popup.click()
+                driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
+                print("Waiting for 1 sec...")
+                time.sleep(1)
+
+                # Filling Inputs with Values
                 print(f'Selecting Juridiction...')
                 f3_juridiction_select.select_by_visible_text(juridiction_u_input)
                 print(f'Selected Juridiction is "{juridiction_u_input}"')
 
-                print("Waiting for 3 sec...")
-                time.sleep(3)
+                print("Waiting for 5 sec...")
+                time.sleep(5)
 
                 print(f'Selecting Appointment Category...')
                 f3_category_select = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
@@ -332,7 +341,7 @@ def main():
                 
                 print("Opening Verify URL in a New Browser")
                 sub_options = Options()
-                sub_driver = MyUDC(options=sub_options)
+                sub_driver = MyUDC(driver_executable_path=ChromeDriverManager().install(), options=sub_options)
                 sub_driver.get(verify_url)
                 
                 print("Waiting for 3 sec...")
@@ -345,19 +354,20 @@ def main():
 
                 try:
                     print("Searching for Email Input...")
-                    sub_email_input = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "form input[name='email']")))
+                    sub_email_input = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
                     if sub_email_input:
                         print("Email Input Found!")
-                        sub_email_input.send_keys(email_u_input)
+                        # sub_email_input.send_keys(email_u_input)
+                        sub_driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
                         print(f'Entered Email is "{email_u_input}"')
         
                         print("Waiting for 1 sec...")
                         time.sleep(1)
 
                         print("Pressing Submit Button...")
-                        sub_submit_btn = sub_driver.find_element(By.CSS_SELECTOR, "form input[type='submit']")
-                        sub_submit_btn.click()
-                        # sub_driver.execute_script('''document.querySelector("form input[type='submit']").click()''')
+                        # sub_submit_btn = sub_driver.find_element(By.CSS_SELECTOR, "form input[type='submit']")
+                        # sub_submit_btn.click()
+                        sub_driver.execute_script('''document.querySelector("[type=submit]").click()''')
                         print("Pressed Submit Button!")
 
                         print("Searching for OTP div...")
@@ -382,8 +392,59 @@ def main():
                     print(f"Entered Verify Token is {verify_otp}")
                 else:
                     raise ValueError("Couldn't Optain Verify Token!")
-                
-                    
+
+                print("Waiting for 4 sec...")
+                time.sleep(4)
+                print("Waiting for 1 sec...")
+                time.sleep(1)
+
+                print("Closing Popup")
+                driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
+                print("Waiting for 1 sec...")
+                time.sleep(1)
+
+                print(f'Selecting Juridiction Again...')
+                f3_juridiction_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
+                f3_juridiction_select_2.select_by_visible_text(juridiction_u_input)
+                print(f'Selected Juridiction is "{juridiction_u_input}"')
+
+                print("Waiting for 5 sec...")
+                time.sleep(5)
+
+                print(f'Selecting Appointment Category Again...')
+                f3_category_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
+                f3_category_select_2.select_by_visible_text(app_cat_u_input)
+                print(f'Selected Appointment Category is "{app_cat_u_input}"')
+
+                print("Waiting for 4 sec...")
+                time.sleep(4)
+
+                challenge_div = driver.find_element(By.CSS_SELECTOR, "[data-sitekey]")
+                print("Started Solver...")
+                hc_sitekey = challenge_div.get_attribute('data-sitekey')
+                print("sitekey:", hc_sitekey)
+                hc_page_url = driver.current_url
+                print("page_url:", hc_page_url)
+                print("Solving hcaptcha...")
+                captcha_token = solve_hcaptcha(hc_sitekey, hc_page_url)
+                print("captcha_solution:", captcha_token)
+                driver.execute_script(
+                    """
+                    document.getElementsByName('h-captcha-response')[0].innerHTML = arguments[0]
+                    """,
+                    captcha_token,
+                )
+                print("waiting 2 sec")
+                time.sleep(2)
+                # f3_submit_btn = driver.find_element(By.CSS_SELECTOR, "input[name='save']")
+                print("Pressing Submit Button...")
+                # f3_submit_btn.click()
+                driver.execute_script('''document.querySelector("[name=save]").click()''')
+                print("Pressed Submit Button!")
+                print("waiting 2 sec")
+                time.sleep(2)
+
+
 
                 # f3_password_input.send_keys(f3_password_value)
                 # print(f'Entered Password "{f3_password_value}"')
@@ -394,12 +455,35 @@ def main():
                 # f3_submit_input.click()
                 # print("Pressed Login Button")
 
-            print("Waiting for 60 min...")
-            time.sleep(1*60*60)
         except Exception as err:
             print("Error:\n")
             print(err)
             print("Appointment Booking Form not Found!")
+            print("Try again tomorrow :-(")
+
+        check_for_wait_time_page(driver)
+        
+        # Terms Agreement Page
+        try:
+
+            print("Finding Agree Button...")
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=agree]")))
+            print("Agree Button Found!")
+            
+            print("Closing Popup")
+            driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
+            print("Waiting for 1 sec...")
+            time.sleep(1)
+
+
+            print("Pressing Agree Button...")
+            driver.execute_script('''document.querySelector("[name=agree]").click()''')
+            print("Pressed Agree Button!")
+
+            print("Waiting for 60 min...")
+            time.sleep(1*60*60)
+        except:
+            print("Agree Button not Found!")
             print("Try again tomorrow :-(")
 
         print("Saving Last_View.png Screenshot Image...")
