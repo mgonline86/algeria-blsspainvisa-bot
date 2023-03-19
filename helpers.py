@@ -51,7 +51,6 @@ def decode_email_body(body_data):
         print(err)
         return
 
-
 def extract_otp(message):
     try:
         # Get value of 'payload' from dictionary 'message'
@@ -186,3 +185,43 @@ def extract_otp_from_html(html_str:str) -> str:
         print("Error in extract_otp():\n")
         print(err)
         return
+
+class DatePicker:
+    def __init__(self, month_year_str) -> None:
+        self.month_str, self.year_str = month_year_str.split(" ")
+        self.year_int = int(self.year_str)
+        self.monthes = {
+            "January" : 1,
+            "February" : 2,
+            "March" : 3,
+            "April" : 4,
+            "May" : 5,
+            "June" : 6,
+            "July" : 7,
+            "August" : 8,
+            "September" : 9,
+            "October" : 10,
+            "November" : 11,
+            "December" : 12,
+        }
+
+    def get_element_date(self,ele):
+        ele_classes = ele.get_attribute("class").split(' ')
+        day = int(ele.text)
+        month = self.monthes[self.month_str]
+        year = self.year_int
+        if "old" in ele_classes:
+            if month == 1:
+                month = 12
+                year -= 1
+            else:
+                month -= 1
+                
+        if "new" in ele_classes:
+            if month == 12:
+                month = 1
+                year += 1
+            else:
+                month += 1
+
+        return datetime(year, month, day)
