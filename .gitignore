@@ -11,5 +11,9 @@ notified.json
 Last_View.png
 test.py
 
+# Log Files
+logs.log
+
 # Local Files
 /lib
+Zero Click Recaptcha Solver.user.js

@@ -34,7 +34,7 @@ def find_new_message(submit_time):
 
         return last_message
     except Exception as err:
-        print("Error at  'is_new_message()':\n")
+        print("Error at  'find_new_message()':\n")
         print(err)
         return
 

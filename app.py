@@ -195,277 +195,292 @@ def main():
 
         check_for_wait_time_page(driver)
 
+        f3_submit_time = None
         try:
-            f3_submit_time = None
-            print("Searching for Appointment Booking Form...")
-            form_03 = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#alg_app_first")))
-            if form_03:
-                # Default Values
-                app_type = "Individual"
-                members_count = None
-                f3_juridiction_select_opts = {
-                    "Select Juridiction": "",
-                    "Adrar": "14#Adrar#9",
-                    "Aïn Temouchent Y Relizane": "14#A�n Temouchent Y Relizane#9",
-                    "Ain-Defla": "15#Ain-Defla#10",
-                    "Algiers": "15#Algiers#10",
-                    "Annaba": "15#Annaba#10",
-                    "Batna": "15#Batna#10",
-                    "Béchar": "14#B�char#9",
-                    "Béjaia": "15#B�jaia#10",
-                    "Biskra": "15#Biskra#10",
-                    "Blida": "15#Blida#10",
-                    "Bordj-Bou-Arréridj": "15#Bordj-Bou-Arr�ridj#10",
-                    "Bouira": "15#Bouira#10",
-                    "Boumerdés": "15#Boumerd�s#10",
-                    "Chlef": "14#Chlef#9",
-                    "Constantine": "15#Constantine#10",
-                    "Djelfa": "15#Djelfa#10",
-                    "El Bayadh": "14#El Bayadh#9",
-                    "El Oued, El Tarf": "15#El Oued, El Tarf#10",
-                    "Ghardaïa": "15#Gharda�a#10",
-                    "Guelma": "15#Guelma#10",
-                    "Illizi": "15#Illizi#10",
-                    "Jijel": "15#Jijel#10",
-                    "Khenchela": "15#Khenchela#10",
-                    "Laghouart": "15#Laghouart#10",
-                    "M'sila": "15#M'sila#10",
-                    "Mascara": "14#Mascara#9",
-                    "Médéa": "15#M�d�a#10",
-                    "Mila": "15#Mila#10",
-                    "Mostaganem": "14#Mostaganem#9",
-                    "Naâma": "14#Na�ma#9",
-                    "Oran": "14#Oran#9",
-                    "Ouargla": "15#Ouargla#10",
-                    "Oum El Bouaghi": "15#Oum El Bouaghi#10",
-                    "Saïda": "14#Sa�da#9",
-                    "Sétif": "15#S�tif#10",
-                    "Sidi Bel-Abbes": "14#Sidi Bel-Abbes#9",
-                    "Skikda": "15#Skikda#10",
-                    "Souk Ahras": "15#Souk Ahras#10",
-                    "Tamanrasset": "15#Tamanrasset#10",
-                    "Tebessa": "15#Tebessa#10",
-                    "Tiaret": "14#Tiaret#9",
-                    "Tindouf": "15#Tindouf#10",
-                    "Tipaza": "15#Tipaza#10",
-                    "Tissemsilt": "14#Tissemsilt#9",
-                    "Tizi-Ouzou": "15#Tizi-Ouzou#10",
-                    "Tlemcen": "14#Tlemcen#9"
-                }
-                f3_category_select_opts = {
-                    "Appointment Category" : "",
-                    "Normal" : "Normal",
-                    "Premium" : "Premium",
-                }
+            logging.info("Searching for Appointment Booking Form...")
+            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#alg_app_first")))
+            logging.info("Appointment Booking Form Found :-)")
+        except:
+            raise ValueError("Couldn't Find Appointment Booking Form!")
+        
+        # Default Values
+        app_type = "Individual"
+        members_count = None
+        f3_juridiction_select_opts = {
+            "Select Juridiction": "",
+            "Adrar": "14#Adrar#9",
+            "Aïn Temouchent Y Relizane": "14#A�n Temouchent Y Relizane#9",
+            "Ain-Defla": "15#Ain-Defla#10",
+            "Algiers": "15#Algiers#10",
+            "Annaba": "15#Annaba#10",
+            "Batna": "15#Batna#10",
+            "Béchar": "14#B�char#9",
+            "Béjaia": "15#B�jaia#10",
+            "Biskra": "15#Biskra#10",
+            "Blida": "15#Blida#10",
+            "Bordj-Bou-Arréridj": "15#Bordj-Bou-Arr�ridj#10",
+            "Bouira": "15#Bouira#10",
+            "Boumerdés": "15#Boumerd�s#10",
+            "Chlef": "14#Chlef#9",
+            "Constantine": "15#Constantine#10",
+            "Djelfa": "15#Djelfa#10",
+            "El Bayadh": "14#El Bayadh#9",
+            "El Oued, El Tarf": "15#El Oued, El Tarf#10",
+            "Ghardaïa": "15#Gharda�a#10",
+            "Guelma": "15#Guelma#10",
+            "Illizi": "15#Illizi#10",
+            "Jijel": "15#Jijel#10",
+            "Khenchela": "15#Khenchela#10",
+            "Laghouart": "15#Laghouart#10",
+            "M'sila": "15#M'sila#10",
+            "Mascara": "14#Mascara#9",
+            "Médéa": "15#M�d�a#10",
+            "Mila": "15#Mila#10",
+            "Mostaganem": "14#Mostaganem#9",
+            "Naâma": "14#Na�ma#9",
+            "Oran": "14#Oran#9",
+            "Ouargla": "15#Ouargla#10",
+            "Oum El Bouaghi": "15#Oum El Bouaghi#10",
+            "Saïda": "14#Sa�da#9",
+            "Sétif": "15#S�tif#10",
+            "Sidi Bel-Abbes": "14#Sidi Bel-Abbes#9",
+            "Skikda": "15#Skikda#10",
+            "Souk Ahras": "15#Souk Ahras#10",
+            "Tamanrasset": "15#Tamanrasset#10",
+            "Tebessa": "15#Tebessa#10",
+            "Tiaret": "14#Tiaret#9",
+            "Tindouf": "15#Tindouf#10",
+            "Tipaza": "15#Tipaza#10",
+            "Tissemsilt": "14#Tissemsilt#9",
+            "Tizi-Ouzou": "15#Tizi-Ouzou#10",
+            "Tlemcen": "14#Tlemcen#9"
+        }
+        f3_category_select_opts = {
+            "Appointment Category" : "",
+            "Normal" : "Normal",
+            "Premium" : "Premium",
+        }
 
-                # User Inputs
-                app_type_u_input = "Individual"
-                members_count_u_input = "2"
-                juridiction_u_input = "Sétif"
-                app_cat_u_input = "Normal"
-                email_u_input = EMAIL
+        # User Inputs
+        app_type_u_input = "Individual"
+        members_count_u_input = "2"
+        juridiction_u_input = "Sétif"
+        app_cat_u_input = "Normal"
+        email_u_input = EMAIL
 
-
-                print("Appointment Booking Form Found :-)")
-                
-                # Form Inputs
-                f3_app_type1_radio = driver.find_element(By.CSS_SELECTOR, "#app_type1")
+        # try:
+        #     logging.info("Searching for Appointment Booking Form Input Fields...")
+        #     # Form Inputs
+        #     f3_app_type1_radio = driver.find_element(By.CSS_SELECTOR, "#app_type1")
+        #     f3_visa_question_input = driver.find_element(By.CSS_SELECTOR, "#visa_question")
+        #     f3_visa_no_input = driver.find_element(By.CSS_SELECTOR, "#visa_no")
+        #     f3_visa_valid_from_input = driver.find_element(By.CSS_SELECTOR, "#visa_valid_from")
+        #     f3_visa_valid_to_input = driver.find_element(By.CSS_SELECTOR, "#visa_valid_to")
+        #     f3_rejected2_input = driver.find_element(By.CSS_SELECTOR, "#rejected2")
+        #     f3_rejected_input = driver.find_element(By.CSS_SELECTOR, "#rejected")
+        #     f3_refusal_date_input = driver.find_element(By.CSS_SELECTOR, "#refusal_date")
+        #     f3_phone_code_input = driver.find_element(By.CSS_SELECTOR, "#phone_code")
+        #     f3_phone_input = driver.find_element(By.CSS_SELECTOR, "#phone")
+        #     f3_email_input = driver.find_element(By.CSS_SELECTOR, "#email")
+        #     f3_csrftokenvalue_input = driver.find_element(By.CSS_SELECTOR, "#csrftokenvalue")
+            
+        #     logging.info("Found Appointment Booking Form Input Fields!")
+        # except:
+        #     raise ValueError("Couldn't Find Appointment Booking Form Input Fields!!")
+            
+        try:
+            # if application type is family
+            if app_type_u_input == "Family":
+                logging.info("Selecting Family Appliction Type...")
+                app_type = "Family"
+                members_count = members_count_u_input
                 f3_app_type2_radio = driver.find_element(By.CSS_SELECTOR, "#app_type2")
-                f3_visa_question_input = driver.find_element(By.CSS_SELECTOR, "#visa_question")
-                f3_visa_no_input = driver.find_element(By.CSS_SELECTOR, "#visa_no")
-                f3_visa_valid_from_input = driver.find_element(By.CSS_SELECTOR, "#visa_valid_from")
-                f3_visa_valid_to_input = driver.find_element(By.CSS_SELECTOR, "#visa_valid_to")
-                f3_rejected2_input = driver.find_element(By.CSS_SELECTOR, "#rejected2")
-                f3_rejected_input = driver.find_element(By.CSS_SELECTOR, "#rejected")
-                f3_refusal_date_input = driver.find_element(By.CSS_SELECTOR, "#refusal_date")
-                f3_phone_code_input = driver.find_element(By.CSS_SELECTOR, "#phone_code")
-                f3_phone_input = driver.find_element(By.CSS_SELECTOR, "#phone")
-                f3_email_input = driver.find_element(By.CSS_SELECTOR, "#email")
-                f3_csrftokenvalue_input = driver.find_element(By.CSS_SELECTOR, "#csrftokenvalue")
-                
-                f3_member_select = Select(driver.find_element(By.CSS_SELECTOR, "#member"))
-                f3_juridiction_select = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
-                
+                f3_app_type2_radio.click()
+                logging.info("Family Appliction Type is Selected!")
+                logging.info("Waiting for 1 sec...")
+                time.sleep(1)
+                try:
+                    logging.info(f"Setting Number of Members as {members_count}...")
+                    f3_member_select = Select(driver.find_element(By.CSS_SELECTOR, "#member"))
+                    f3_member_select.select_by_value(members_count)
+                    logging.info(f"Number of Members is Set to {members_count}!")
+                except:
+                    raise ValueError("Couldn't Set Number of Members!")
+            else:
+                logging.info("Individual Appliction Type is Selected by default!")
 
-                # if application type is family
-                if app_type_u_input == "Family":
-                    app_type = "Family"
-                    members_count = members_count_u_input
-                    f3_app_type2_radio.click()
-                    print("Family Appliction Type is Selected!")
-                
+            logging.info("Waiting for 1 sec...")
+            time.sleep(1)
+        except:
+            raise ValueError("Couldn't Select Application Type!")
+
+        try:
+            logging.info("Closing Popup Box...")
+            driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
+            logging.info("Popup Box Closed!")
+            logging.info("Waiting for 1 sec...")
+            time.sleep(1)
+        except:
+            raise ValueError("Couldn't Close Popup Box!")
+            
+        try:
+            # Filling Inputs with Values
+            logging.info(f'Selecting Juridiction as "{juridiction_u_input}"...')
+            f3_juridiction_select = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
+            f3_juridiction_select.select_by_visible_text(juridiction_u_input)
+            logging.info(f'Selected Juridiction as "{juridiction_u_input}"')
+            logging.info("Waiting for 5 sec...")
+            time.sleep(5)
+        except:
+            raise ValueError("Couldn't Select Juridiction!")
+            
+        try:
+            logging.info(f'Selecting Appointment Category as "{app_cat_u_input}"...')
+            f3_category_select = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
+            f3_category_select.select_by_visible_text(app_cat_u_input)
+            logging.info(f'Selected Appointment Category as "{app_cat_u_input}"')            
+            logging.info("Waiting for 3 sec...")
+            time.sleep(3)
+        except:
+            raise ValueError("Couldn't Select Appointment Category!")
+            
+        f3_submit_time = datetime.now()
+        
+        try:
+            logging.info('Clicking Request Verification Token Button...')
+            driver.execute_script('''document.querySelector("#verification_code").click()''')
+            logging.info(f'Clicked Request Verification Token Button!')
+        except:
+            raise ValueError("Couldn't Click Request Verification Token Button!")
+            
+        try:
+            logging.info("Retriving Verification Token...")
+            logging.info("Finding Last Verification Token Email...")
+            verify_email = find_new_message(f3_submit_time)
+            if not verify_url:
+                raise ValueError("Couldn't Find Last Verification Token Email!")
+            
+            logging.info("Extracting Confirm URL from Email...")
+            verify_url = extract_confirm_link(verify_email)
+            if not verify_url:
+                raise ValueError("Couldn't Retrive Verify URL!")
+            logging.info(f"Verify URL is ({verify_url})")
+            
+            logging.info("Opening Verify URL in a New Browser")
+            sub_options = Options()
+            # sub_options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
+            sub_options.add_argument('--window-size=1366,768')
+            sub_driver = MyUDC(service=Service(ChromeDriverManager().install()), options=sub_options)
+            sub_driver.get(verify_url)
+            logging.info("Waiting for 3 sec...")
+            time.sleep(3)
+
+            check_for_wait_time_page(sub_driver)
+
+            verify_otp = None
+
+            try:
+                print("Searching for Email Input...")
+                sub_email_input = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
+                if sub_email_input:
+                    print("Email Input Found!")
+                    # sub_email_input.send_keys(email_u_input)
+                    sub_driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
+                    print(f'Entered Email is "{email_u_input}"')
+    
                     print("Waiting for 1 sec...")
                     time.sleep(1)
-                    f3_member_select.select_by_value(members_count)
-                else:
-                    print("Individual Appliction Type is Selected!")
+
+                    print("Pressing Submit Button...")
+                    # sub_submit_btn = sub_driver.find_element(By.CSS_SELECTOR, "form input[type='submit']")
+                    # sub_submit_btn.click()
+                    sub_driver.execute_script('''document.querySelector("[type=submit]").click()''')
+                    print("Pressed Submit Button!")
+
+                    print("Searching for OTP div...")
+                    verify_otp_div = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".blurry-text")))
 
 
-                print("Waiting for 1 sec...")
-                time.sleep(1)
+                    if verify_otp_div:
+                        verify_otp = extract_otp_from_html(verify_otp_div.text)
+            except Exception as err:        
+                print("Error at Email Input:\n")
+                print(err)
+                quit()
+            finally:
+                sub_driver.quit()
 
-                print("Closing Popup")
-                # close_popup = driver.find_element(By.CSS_SELECTOR, ".popup-appCloseIcon")
-                # if close_popup:
-                #     close_popup.click()
-                driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
-                print("Waiting for 1 sec...")
-                time.sleep(1)
-
-                # Filling Inputs with Values
-                print(f'Selecting Juridiction...')
-                f3_juridiction_select.select_by_visible_text(juridiction_u_input)
-                print(f'Selected Juridiction is "{juridiction_u_input}"')
-
-                print("Waiting for 5 sec...")
-                time.sleep(5)
-
-                print(f'Selecting Appointment Category...')
-                f3_category_select = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
-                f3_category_select.select_by_visible_text(app_cat_u_input)
-                print(f'Selected Appointment Category is "{app_cat_u_input}"')
-                
-                print("Waiting for 3 sec...")
-                time.sleep(3)
-
-                # f3_email_input.send_keys(f3_email_input)
-                # print(f'Entered Email is "{f3_email_input}"')
-                
-                # print("Waiting for 1 sec...")
-                # time.sleep(1)
-
-                f3_submit_time = datetime.now()
-                driver.execute_script('''document.querySelector("#verification_code").click()''')
-                print(f'Requested Verification Token Button Clicked')
-
-
-                print("Waiting for Verification Token Email...")
-                verify_email = find_new_message(f3_submit_time)
-
-                print("Retriving Confirm URL from Email...")
-                verify_url = extract_confirm_link(verify_email)
-                print(f"Verify URL is ({verify_url})")
-
-                if not verify_url:
-                    raise ValueError("Couldn't Retrive Verify URL!")
-                
-                print("Opening Verify URL in a New Browser")
-                sub_options = Options()
-                # sub_options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
-                sub_options.add_argument('--window-size=1366,768')
-                sub_driver = MyUDC(service=Service(ChromeDriverManager().install()), options=sub_options)
-                sub_driver.get(verify_url)
-                
-                print("Waiting for 3 sec...")
-                time.sleep(3)
-
-                check_for_wait_time_page(sub_driver)
-
-
-                verify_otp = None
-
-                try:
-                    print("Searching for Email Input...")
-                    sub_email_input = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
-                    if sub_email_input:
-                        print("Email Input Found!")
-                        # sub_email_input.send_keys(email_u_input)
-                        sub_driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
-                        print(f'Entered Email is "{email_u_input}"')
-        
-                        print("Waiting for 1 sec...")
-                        time.sleep(1)
-
-                        print("Pressing Submit Button...")
-                        # sub_submit_btn = sub_driver.find_element(By.CSS_SELECTOR, "form input[type='submit']")
-                        # sub_submit_btn.click()
-                        sub_driver.execute_script('''document.querySelector("[type=submit]").click()''')
-                        print("Pressed Submit Button!")
-
-                        print("Searching for OTP div...")
-                        verify_otp_div = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".blurry-text")))
-
-
-                        if verify_otp_div:
-                            verify_otp = extract_otp_from_html(verify_otp_div.text)
-                except Exception as err:        
-                    print("Error at Email Input:\n")
-                    print(err)
-                    quit()
-                finally:
-                    sub_driver.quit()
-
-                if verify_otp:
-                    print("Waiting for 2 sec...")
-                    time.sleep(2)
-                    f3_otpvr_input = driver.find_element(By.CSS_SELECTOR, "#otpvr")
-                    print("Entering Verify Token...")
-                    f3_otpvr_input.send_keys(verify_otp)
-                    print(f"Entered Verify Token is {verify_otp}")
-                else:
-                    raise ValueError("Couldn't Optain Verify Token!")
-
-                print("Waiting for 4 sec...")
-                time.sleep(4)
-                print("Waiting for 1 sec...")
-                time.sleep(1)
-
-                print("Closing Popup")
-                driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
-                print("Waiting for 1 sec...")
-                time.sleep(1)
-
-                print(f'Selecting Juridiction Again...')
-                f3_juridiction_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
-                f3_juridiction_select_2.select_by_visible_text(juridiction_u_input)
-                print(f'Selected Juridiction is "{juridiction_u_input}"')
-
-                print("Waiting for 5 sec...")
-                time.sleep(5)
-
-                print(f'Selecting Appointment Category Again...')
-                f3_category_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
-                f3_category_select_2.select_by_visible_text(app_cat_u_input)
-                print(f'Selected Appointment Category is "{app_cat_u_input}"')
-
-                print("Waiting for 4 sec...")
-                time.sleep(4)
-
-                challenge_div = driver.find_element(By.CSS_SELECTOR, "[data-sitekey]")
-                print("Started Solver...")
-                hc_sitekey = challenge_div.get_attribute('data-sitekey')
-                print("sitekey:", hc_sitekey)
-                hc_page_url = driver.current_url
-                print("page_url:", hc_page_url)
-                print("Solving hcaptcha...")
-                captcha_token = solve_hcaptcha(hc_sitekey, hc_page_url)
-                print("captcha_solution:", captcha_token)
-                driver.execute_script(
-                    """
-                    document.getElementsByName('h-captcha-response')[0].innerHTML = arguments[0]
-                    """,
-                    captcha_token,
-                )
-                print("waiting 2 sec")
+            if verify_otp:
+                print("Waiting for 2 sec...")
                 time.sleep(2)
-                # f3_submit_btn = driver.find_element(By.CSS_SELECTOR, "input[name='save']")
-                print("Pressing Submit Button...")
-                # f3_submit_btn.click()
-                driver.execute_script('''document.querySelector("[name=save]").click()''')
-                print("Pressed Submit Button!")
-                print("waiting 2 sec")
-                time.sleep(2)
+                f3_otpvr_input = driver.find_element(By.CSS_SELECTOR, "#otpvr")
+                print("Entering Verify Token...")
+                f3_otpvr_input.send_keys(verify_otp)
+                print(f"Entered Verify Token is {verify_otp}")
+            else:
+                raise ValueError("Couldn't Optain Verify Token!")
+
+            print("Waiting for 4 sec...")
+            time.sleep(4)
+            print("Waiting for 1 sec...")
+            time.sleep(1)
+
+            print("Closing Popup")
+            driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
+            print("Waiting for 1 sec...")
+            time.sleep(1)
+
+            print(f'Selecting Juridiction Again...')
+            f3_juridiction_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
+            f3_juridiction_select_2.select_by_visible_text(juridiction_u_input)
+            print(f'Selected Juridiction is "{juridiction_u_input}"')
+
+            print("Waiting for 5 sec...")
+            time.sleep(5)
+
+            print(f'Selecting Appointment Category Again...')
+            f3_category_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
+            f3_category_select_2.select_by_visible_text(app_cat_u_input)
+            print(f'Selected Appointment Category is "{app_cat_u_input}"')
+
+            print("Waiting for 4 sec...")
+            time.sleep(4)
+
+            challenge_div = driver.find_element(By.CSS_SELECTOR, "[data-sitekey]")
+            print("Started Solver...")
+            hc_sitekey = challenge_div.get_attribute('data-sitekey')
+            print("sitekey:", hc_sitekey)
+            hc_page_url = driver.current_url
+            print("page_url:", hc_page_url)
+            print("Solving hcaptcha...")
+            captcha_token = solve_hcaptcha(hc_sitekey, hc_page_url)
+            print("captcha_solution:", captcha_token)
+            driver.execute_script(
+                """
+                document.getElementsByName('h-captcha-response')[0].innerHTML = arguments[0]
+                """,
+                captcha_token,
+            )
+            print("waiting 2 sec")
+            time.sleep(2)
+            # f3_submit_btn = driver.find_element(By.CSS_SELECTOR, "input[name='save']")
+            print("Pressing Submit Button...")
+            # f3_submit_btn.click()
+            driver.execute_script('''document.querySelector("[name=save]").click()''')
+            print("Pressed Submit Button!")
+            print("waiting 2 sec")
+            time.sleep(2)
 
 
 
-                # f3_password_input.send_keys(f3_password_value)
-                # print(f'Entered Password "{f3_password_value}"')
-                
-                # print("Waiting for 2 sec...")
-                # time.sleep(2)
+            # f3_password_input.send_keys(f3_password_value)
+            # print(f'Entered Password "{f3_password_value}"')
+            
+            # print("Waiting for 2 sec...")
+            # time.sleep(2)
 
-                # f3_submit_input.click()
-                # print("Pressed Login Button")
+            # f3_submit_input.click()
+            # print("Pressed Login Button")
 
         except Exception as err:
             print("Error:\n")
