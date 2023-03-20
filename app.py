@@ -380,29 +380,37 @@ def main():
             verify_otp = None
 
             try:
-                print("Searching for Email Input...")
-                sub_email_input = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
-                if sub_email_input:
-                    print("Email Input Found!")
-                    # sub_email_input.send_keys(email_u_input)
-                    sub_driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
-                    print(f'Entered Email is "{email_u_input}"')
-    
-                    print("Waiting for 1 sec...")
-                    time.sleep(1)
-
-                    print("Pressing Submit Button...")
-                    # sub_submit_btn = sub_driver.find_element(By.CSS_SELECTOR, "form input[type='submit']")
-                    # sub_submit_btn.click()
-                    sub_driver.execute_script('''document.querySelector("[type=submit]").click()''')
-                    print("Pressed Submit Button!")
-
-                    print("Searching for OTP div...")
-                    verify_otp_div = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".blurry-text")))
-
-
-                    if verify_otp_div:
-                        verify_otp = extract_otp_from_html(verify_otp_div.text)
+                logging.info("Searching for Email Input...")
+                WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
+                logging.info("Email Input Found!")
+            except:
+                raise ValueError("Couldn't Find Email Input!")
+                
+            try:
+                logging.info(f'Entering Email as "{email_u_input}"...')
+                sub_driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
+                logging.info(f'Entered Email as "{email_u_input}"!')
+                logging.info("Waiting for 1 sec...")
+                time.sleep(1)
+            except:
+                raise ValueError("Couldn't Enter Email!")
+                
+            try:
+                logging.info("Pressing Submit Button...")
+                sub_driver.execute_script('''document.querySelector("[type=submit]").click()''')
+                logging.info("Pressed Submit Button!")
+            except:
+                raise ValueError("Couldn't Press Submit Button!")
+                
+            try:
+                logging.info("Searching for OTP div...")
+                verify_otp_div = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".blurry-text")))
+                logging.info("OTP div Found!")
+            except:
+                raise ValueError("Couldn't Find OTP div!")
+                
+            try:
+                verify_otp = extract_otp_from_html(verify_otp_div.text)
             except Exception as err:        
                 print("Error at Email Input:\n")
                 print(err)
