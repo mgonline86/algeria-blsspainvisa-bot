@@ -2,7 +2,7 @@ import os
 import time
 from datetime import datetime
 import re
-import logging
+from logger import logger as logging
 
 from dotenv import load_dotenv
 
@@ -24,20 +24,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 from helpers import find_new_message, extract_otp, extract_confirm_link, extract_otp_from_html, DatePicker
 from h2captcha import solve_hcaptcha
 
-# Logging Configurations
-logging.basicConfig(
-    filename='logs.log', 
-    encoding='utf-8', 
-    level=logging.INFO,
-    format='[%(asctime)s](%(levelname)s): %(message)s',
-    datefmt='%m/%d/%Y %I:%M:%S %p'
-)
 
 # Prevent undetected_chromedriver from auto-close browser
 class MyUDC(uc.Chrome):
     def __del__(self):
         pass
-
 
 
 ## TEMP VARIABLES
@@ -203,6 +194,15 @@ def main():
         except:
             raise ValueError("Couldn't Find Appointment Booking Form!")
         
+        try:
+            logging.info("Closing Popup Box...")
+            driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
+            logging.info("Popup Box Closed!")
+            logging.info("Waiting for 1 sec...")
+            time.sleep(1)
+        except:
+            raise ValueError("Couldn't Close Popup Box!")
+
         # Default Values
         app_type = "Individual"
         members_count = None
@@ -313,15 +313,6 @@ def main():
             time.sleep(1)
         except:
             raise ValueError("Couldn't Select Application Type!")
-
-        try:
-            logging.info("Closing Popup Box...")
-            driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
-            logging.info("Popup Box Closed!")
-            logging.info("Waiting for 1 sec...")
-            time.sleep(1)
-        except:
-            raise ValueError("Couldn't Close Popup Box!")
             
         try:
             # Filling Inputs with Values
@@ -357,7 +348,7 @@ def main():
             logging.info("Retriving Verification Token...")
             logging.info("Finding Last Verification Token Email...")
             verify_email = find_new_message(f3_submit_time)
-            if not verify_url:
+            if not verify_email:
                 raise ValueError("Couldn't Find Last Verification Token Email!")
             
             logging.info("Extracting Confirm URL from Email...")
@@ -378,194 +369,213 @@ def main():
             check_for_wait_time_page(sub_driver)
 
             verify_otp = None
-
             try:
-                logging.info("Searching for Email Input...")
-                WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
-                logging.info("Email Input Found!")
-            except:
-                raise ValueError("Couldn't Find Email Input!")
-                
-            try:
-                logging.info(f'Entering Email as "{email_u_input}"...')
-                sub_driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
-                logging.info(f'Entered Email as "{email_u_input}"!')
-                logging.info("Waiting for 1 sec...")
-                time.sleep(1)
-            except:
-                raise ValueError("Couldn't Enter Email!")
-                
-            try:
-                logging.info("Pressing Submit Button...")
-                sub_driver.execute_script('''document.querySelector("[type=submit]").click()''')
-                logging.info("Pressed Submit Button!")
-            except:
-                raise ValueError("Couldn't Press Submit Button!")
-                
-            try:
-                logging.info("Searching for OTP div...")
-                verify_otp_div = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".blurry-text")))
-                logging.info("OTP div Found!")
-            except:
-                raise ValueError("Couldn't Find OTP div!")
-                
-            try:
-                verify_otp = extract_otp_from_html(verify_otp_div.text)
+                logging.info("Started Verifying Process...")
+                try:
+                    logging.info("Searching for Email Input...")
+                    WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
+                    logging.info("Email Input Found!")
+                except:
+                    raise ValueError("Couldn't Find Email Input!")
+                    
+                try:
+                    logging.info(f'Entering Email as "{email_u_input}"...')
+                    sub_driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
+                    logging.info(f'Entered Email as "{email_u_input}"!')
+                    logging.info("Waiting for 1 sec...")
+                    time.sleep(1)
+                except:
+                    raise ValueError("Couldn't Enter Email!")
+                    
+                try:
+                    logging.info("Pressing Submit Button...")
+                    sub_driver.execute_script('''document.querySelector("[type=submit]").click()''')
+                    logging.info("Pressed Submit Button!")
+                except:
+                    raise ValueError("Couldn't Press Submit Button!")
+                    
+                try:
+                    logging.info("Searching for OTP div...")
+                    verify_otp_div = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".blurry-text")))
+                    logging.info("OTP div Found!")
+                except:
+                    raise ValueError("Couldn't Find OTP div!")
+                    
+                try:
+                    logging.info("Extracting Verify OTP...")
+                    verify_otp = extract_otp_from_html(verify_otp_div.text)
+                    logging.info(f'Extracted Verify OTP is "{verify_otp}"!')
+                except:
+                    raise ValueError("Couldn't Extracting Verify OTP!")
             except Exception as err:        
-                print("Error at Email Input:\n")
-                print(err)
-                quit()
+                logging.error("Couldn't Complete Verifying Process!")
+                logging.error(err)
             finally:
                 sub_driver.quit()
 
             if verify_otp:
-                print("Waiting for 2 sec...")
-                time.sleep(2)
-                f3_otpvr_input = driver.find_element(By.CSS_SELECTOR, "#otpvr")
-                print("Entering Verify Token...")
-                f3_otpvr_input.send_keys(verify_otp)
-                print(f"Entered Verify Token is {verify_otp}")
+                try:
+                    logging.info("Waiting for 2 sec...")
+                    time.sleep(2)
+                    logging.info("Entering Verify Token...")
+                    f3_otpvr_input = driver.find_element(By.CSS_SELECTOR, "#otpvr")
+                    f3_otpvr_input.send_keys(verify_otp)
+                    logging.info(f"Entered Verify Token is {verify_otp}")
+                except:
+                    raise ValueError("Couldn't Enter Verify Token!")
             else:
                 raise ValueError("Couldn't Optain Verify Token!")
 
-            print("Waiting for 4 sec...")
-            time.sleep(4)
-            print("Waiting for 1 sec...")
-            time.sleep(1)
-
-            print("Closing Popup")
-            driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
-            print("Waiting for 1 sec...")
-            time.sleep(1)
-
-            print(f'Selecting Juridiction Again...')
-            f3_juridiction_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
-            f3_juridiction_select_2.select_by_visible_text(juridiction_u_input)
-            print(f'Selected Juridiction is "{juridiction_u_input}"')
-
-            print("Waiting for 5 sec...")
-            time.sleep(5)
-
-            print(f'Selecting Appointment Category Again...')
-            f3_category_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
-            f3_category_select_2.select_by_visible_text(app_cat_u_input)
-            print(f'Selected Appointment Category is "{app_cat_u_input}"')
-
-            print("Waiting for 4 sec...")
-            time.sleep(4)
-
-            challenge_div = driver.find_element(By.CSS_SELECTOR, "[data-sitekey]")
-            print("Started Solver...")
-            hc_sitekey = challenge_div.get_attribute('data-sitekey')
-            print("sitekey:", hc_sitekey)
-            hc_page_url = driver.current_url
-            print("page_url:", hc_page_url)
-            print("Solving hcaptcha...")
-            captcha_token = solve_hcaptcha(hc_sitekey, hc_page_url)
-            print("captcha_solution:", captcha_token)
-            driver.execute_script(
-                """
-                document.getElementsByName('h-captcha-response')[0].innerHTML = arguments[0]
-                """,
-                captcha_token,
-            )
-            print("waiting 2 sec")
-            time.sleep(2)
-            # f3_submit_btn = driver.find_element(By.CSS_SELECTOR, "input[name='save']")
-            print("Pressing Submit Button...")
-            # f3_submit_btn.click()
-            driver.execute_script('''document.querySelector("[name=save]").click()''')
-            print("Pressed Submit Button!")
-            print("waiting 2 sec")
+            logging.info("Waiting for 2 sec...")
             time.sleep(2)
 
+            try:    
+                logging.info(f'Selecting Juridiction Again...')
+                f3_juridiction_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
+                f3_juridiction_select_2.select_by_visible_text(juridiction_u_input)
+                logging.info(f'Selected Juridiction is "{juridiction_u_input}"')
+                print("Waiting for 5 sec...")
+                time.sleep(5)
+            except:
+                raise ValueError("Couldn't Select Juridiction Again!")
 
+            try:
+                logging.info(f'Selecting Appointment Category Again...')
+                f3_category_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#category"))
+                f3_category_select_2.select_by_visible_text(app_cat_u_input)
+                logging.info(f'Selected Appointment Category is "{app_cat_u_input}"')
 
-            # f3_password_input.send_keys(f3_password_value)
-            # print(f'Entered Password "{f3_password_value}"')
+                logging.info("Waiting for 4 sec...")
+                time.sleep(4)
+            except:
+                raise ValueError("Couldn't Select Appointment Category Again!")
+
+            try:
+                logging.info("Started Solving hcaptcha...")
+                challenge_div = driver.find_element(By.CSS_SELECTOR, "[data-sitekey]")
+                logging.info("Started Solver...")
+                hc_sitekey = challenge_div.get_attribute('data-sitekey')
+                logging.info("sitekey:", hc_sitekey)
+                hc_page_url = driver.current_url
+                logging.info("page_url:", hc_page_url)
+                logging.info("Solving hcaptcha...")
+                captcha_token = solve_hcaptcha(hc_sitekey, hc_page_url)
+                logging.info("captcha_solution:", captcha_token)
+                driver.execute_script(
+                    """
+                    document.getElementsByName('h-captcha-response')[0].innerHTML = arguments[0]
+                    """,
+                    captcha_token,
+                )
+                logging.info("waiting 2 sec")
+                time.sleep(2)
+            except:
+                raise ValueError("Couldn't Solve hcaptcha!")
+
+            try:
+                logging.info("Pressing Submit Button...")
+                driver.execute_script('''document.querySelector("[name=save]").click()''')
+                logging.info("Pressed Submit Button!")
+                logging.info("waiting 2 sec")
+                time.sleep(2)
+            except:
+                raise ValueError("Couldn't Select Appointment Category Again!")
+        except:
+            raise ValueError("Couldn't Retrive Verification Token!")
             
-            # print("Waiting for 2 sec...")
-            # time.sleep(2)
-
-            # f3_submit_input.click()
-            # print("Pressed Login Button")
-
-        except Exception as err:
-            print("Error:\n")
-            print(err)
-            print("Appointment Booking Form not Found!")
-            print("Try again tomorrow :-(")
-
         check_for_wait_time_page(driver)
         
         # Terms Agreement Page
         try:
-
-            print("Finding Agree Button...")
+            logging.info("Finding Agree Button...")
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=agree]")))
-            print("Agree Button Found!")
-            
-            print("Closing Popup")
-            driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
-            print("Waiting for 1 sec...")
-            time.sleep(1)
-
-
-            print("Pressing Agree Button...")
-            driver.execute_script('''document.querySelector("[name=agree]").click()''')
-            print("Pressed Agree Button!")
-
+            logging.info("Agree Button Found!")
         except:
-            print("Agree Button not Found!")
-            print("Try again tomorrow :-(")
+            raise ValueError("Couldn't Find Agree Button!")
+            
+        try:
+            logging.info("Closing Popup Box...")
+            driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
+            logging.info("Closed Popup Box!")
+            logging.info("Waiting for 1 sec...")
+            time.sleep(1)
+        except:
+            raise ValueError("Couldn't Close Popup Box!")
+            
+        try:
+            logging.info("Pressing Agree Button...")
+            driver.execute_script('''document.querySelector("[name=agree]").click()''')
+            logging.info("Pressed Agree Button!")
+        except:
+            raise ValueError("Couldn't Press Agree Button!")
 
         check_for_wait_time_page(driver)
 
         # Date Picker Page
         try:
-            print("Closing Popup")
+            logging.info("Closing Popup Box...")
             driver.execute_script('''document.querySelector(".popup-appCloseIcon").click()''')
-            print("Waiting for 1 sec...")
+            logging.info("Closed Popup Box!")
+            logging.info("Waiting for 1 sec...")
             time.sleep(1)
+        except:
+            raise ValueError("Couldn't Close Popup Box!")
 
-
+        try:
             print("Finding Date Picker Input...")
             app_data = WebDriverWait(driver, 5).until(lambda x: x.find_element(By.ID, "app_date"))
             print("Date Picker Input Found!")
-            # create action chain object
+        except:
+            raise ValueError("Couldn't Find Date Picker!")
+
+        try:
+            # Create action chain object
             action = ActionChains(driver)
             action.click(app_data).perform()
-            print("Finding Date Picker Table...")
-            date_picker = WebDriverWait(driver, 2).until(lambda x: x.find_element(By.CLASS_NAME, "datepicker"))
-            if date_picker:
-                print("Date Picker Table Found!")
-                curr_month_date = driver.find_element(By.CSS_SELECTOR, '.datepicker-days th.datepicker-switch').text
-                tds = driver.find_elements(By.CSS_SELECTOR, '.datepicker td[title]:not([title="Not Allowed"],[title="Off Day"])')
-                datePicker = DatePicker(curr_month_date)
-                for td in tds:
-                    td_title = td.get_attribute("title")
-                    td_date = datePicker.get_element_date(td).date()
-                    td_classes = td.get_attribute("class")
-                    print(f"[{td_date}]:\ttitle: '{td_title}'\tclasses: '{td_classes}'")
+            logging.info("Finding Date Picker Table...")
+            WebDriverWait(driver, 2).until(lambda x: x.find_element(By.CLASS_NAME, "datepicker"))
+            logging.info("Date Picker Table Found!")
+        except:
+            raise ValueError("Couldn't Find Date Picker Table!")
 
-            
-            print("Waiting for 60 min...")
+        try:
+            logging.info("Finding Current Table Month...")
+            curr_month_date = driver.find_element(By.CSS_SELECTOR, '.datepicker-days th.datepicker-switch').text
+            logging.info("Found Current Table Month!")
+        except:
+            raise ValueError("Couldn't Find Current Table Month!")
+
+        try:
+            logging.info("Finding Table Data Cells Tags...")
+            tds = driver.find_elements(By.CSS_SELECTOR, '.datepicker td[title]:not([title="Not Allowed"],[title="Off Day"])')
+            logging.info("Found Table Data Cells Tags!")
+        except:
+            raise ValueError("Couldn't Find Table Data Cells Tags!")
+
+        try:
+            logging.info("Extracting Available Days Data...")
+            datePicker = DatePicker(curr_month_date)
+            for td in tds:
+                td_title = td.get_attribute("title")
+                td_date = datePicker.get_element_date(td).date()
+                td_classes = td.get_attribute("class")
+                logging.info(f"[{td_date}]:\ttitle: '{td_title}'\tclasses: '{td_classes}'")
+            logging.info("Extracted Available Days Data!")
+            logging.info("Waiting for 60 min...")
             time.sleep(1*60*60)
         except:
-            print("Agree Button not Found!")
-            print("Try again tomorrow :-(")
+            raise ValueError("Couldn't Extract Available Days Data!")
 
-        print("Saving Last_View.png Screenshot Image...")
+        logging.info("Saving Last_View.png Screenshot Image...")
         driver.save_screenshot("Last_View.png")
-
-        print("Waiting for 2 sec...")
+        logging.info("Waiting for 2 sec...")
         time.sleep(2)
   
     except Exception as err:
-        print("Something went Wrong!")
-        print(err)
+        logging.error("Something went Wrong!")
+        logging.error(err)
     finally:
-        print("Closing Browser!")
+        logging.info("Closing Browser!")
         driver.quit()  
 
 if __name__ == "__main__":

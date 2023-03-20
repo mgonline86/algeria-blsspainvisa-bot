@@ -2,6 +2,7 @@
 
 import os
 import time
+from logger import logger as logging
 
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
@@ -28,29 +29,29 @@ def solve_hcaptcha(sitekey:str, url:str) -> str:
         result = solver.hcaptcha(sitekey, url)
 
     except Exception as e:
-        print("Error at solve_hcaptcha():\n")
-        print(e)
+        logging.error("Error at solve_hcaptcha():\n")
+        logging.error(e)
 
-    print("result:\n", result)    
+    logging.info("result:\n", result)    
     return result.get("code")
 
 def pass_form_captcha(driver, submit_btn):
     challenge_div = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-sitekey]")))
-    print("Started Solver...")
+    logging.info("Started Solver...")
     hc_sitekey = challenge_div.get_attribute('data-sitekey')
-    print("sitekey:", hc_sitekey)
+    logging.info("sitekey:", hc_sitekey)
     hc_page_url = driver.current_url
-    print("page_url:", hc_page_url)
+    logging.info("page_url:", hc_page_url)
     captcha_token = solve_hcaptcha(hc_sitekey, hc_page_url)
-    print("captcha_token:", captcha_token)
+    logging.info("captcha_token:", captcha_token)
     driver.execute_script(
         """
         document.getElementsByName('h-captcha-response')[0].innerHTML = arguments[0]
         """,
         captcha_token,
     )
-    print("waiting 2 sec")
+    logging.info("waiting 2 sec")
     time.sleep(2)
     submit_btn.click()
-    print("waiting 2 sec")
+    logging.info("waiting 2 sec")
     time.sleep(2)

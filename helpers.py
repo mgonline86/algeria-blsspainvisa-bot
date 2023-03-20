@@ -5,6 +5,7 @@ import re
 import base64
 from g_api import GOOGLE
 from datetime import datetime
+from logger import logger as logging
 
 def find_new_message(submit_time):
     try:
@@ -15,10 +16,10 @@ def find_new_message(submit_time):
 
         while delta_time <= 0:
             if retries >= 60:
-                print("Exceeded Max Retries(5 min), Couldn't Find New OTP Message! Aborting!")
+                logging.info("Exceeded Max Retries(5 min), Couldn't Find New OTP Message! Aborting!")
                 return
             retries += 1
-            print("Waiting for 5 sec...")
+            logging.info("Waiting for 5 sec...")
             time.sleep(5)
             last_message_id = g.list_messages()[0].get("id")
 
@@ -27,15 +28,15 @@ def find_new_message(submit_time):
             msg_time = last_message.get("internalDate")
             msg_datetime = float(msg_time)/1000
             submit_datetime = submit_time.timestamp() - 3720  # ALG 1-hr diff & Extra 2 min
-            print("submit_datetime:", submit_time)
-            print("msg_time:", datetime.fromtimestamp(msg_datetime))
+            logging.info("submit_datetime:", submit_time)
+            logging.info("msg_time:", datetime.fromtimestamp(msg_datetime))
             delta_time = msg_datetime - submit_datetime
-            print(delta_time)
+            logging.info(delta_time)
 
         return last_message
     except Exception as err:
-        print("Error at  'find_new_message()':\n")
-        print(err)
+        logging.error("Error at  'find_new_message()':\n")
+        logging.error(err)
         return
 
 def decode_email_body(body_data):
@@ -47,8 +48,8 @@ def decode_email_body(body_data):
         decoded_data = base64.b64decode(data)
         return decoded_data
     except Exception as err:
-        print("Error in decode_email_body():\n")
-        print(err)
+        logging.error("Error in decode_email_body():\n")
+        logging.error(err)
         return
 
 def extract_otp(message):
@@ -65,8 +66,8 @@ def extract_otp(message):
                 sender = d['value']
 
         # Printing the subject, sender's email and message
-        print("Subject: ", subject)
-        print("From: ", sender)
+        logging.info("Subject: ", subject)
+        logging.info("From: ", sender)
 
         if not ("info@blshelpline.com" in sender):
             return None
@@ -86,8 +87,8 @@ def extract_otp(message):
             return
 
     except Exception as err:
-        print("Error in extract_otp():\n")
-        print(err)
+        logging.error("Error in extract_otp():\n")
+        logging.error(err)
         return
     
 def runner(func):
@@ -96,9 +97,9 @@ def runner(func):
         try:
             func()
         except Exception as err:
-            print("[!] An Error Occured:")
-            print(err)
-            print(f"[!] Restarting '{func.__name__}() Function' ...")
+            logging.error("[!] An Error Occured:")
+            logging.error(err)
+            logging.error(f"[!] Restarting '{func.__name__}() Function' ...")
             continue
 
 def run_func_on_interval(func, interval_time):
@@ -146,8 +147,8 @@ def extract_confirm_link(message):
                 sender = d['value']
 
         # Printing the subject, sender's email and message
-        print("Subject: ", subject)
-        print("From: ", sender)
+        logging.info("Subject: ", subject)
+        logging.info("From: ", sender)
 
         if not ("info.spain@blshelpline.com" in sender):
             return None
@@ -166,8 +167,8 @@ def extract_confirm_link(message):
             return
 
     except Exception as err:
-        print("Error in extract_confirm_link():\n")
-        print(err)
+        logging.error("Error in extract_confirm_link():\n")
+        logging.error(err)
         return
 
 def extract_otp_from_html(html_str:str) -> str:
@@ -182,8 +183,8 @@ def extract_otp_from_html(html_str:str) -> str:
             return
 
     except Exception as err:
-        print("Error in extract_otp():\n")
-        print(err)
+        logging.error("Error in extract_otp():\n")
+        logging.error(err)
         return
 
 class DatePicker:
