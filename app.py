@@ -565,7 +565,6 @@ def main():
             raise ValueError("Couldn't Extract Available Days Data!")
   
     except Exception as err:
-        logging.error("Something went Wrong!")
         logging.error(err)
     
     finally:
