@@ -16,10 +16,10 @@ def find_new_message(submit_time):
 
         while delta_time <= 0:
             if retries >= 60:
-                logging.info("Exceeded Max Retries(5 min), Couldn't Find New OTP Message! Aborting!")
+                logging.critical("Exceeded Max Retries(5 min), Couldn't Find New OTP Message! Aborting!")
                 return
             retries += 1
-            logging.info("Waiting for 5 sec...")
+            logging.critical("Waiting for 5 sec...")
             time.sleep(5)
             last_message_id = g.list_messages()[0].get("id")
 
@@ -28,10 +28,10 @@ def find_new_message(submit_time):
             msg_time = last_message.get("internalDate")
             msg_datetime = float(msg_time)/1000
             submit_datetime = submit_time.timestamp() - 3720  # ALG 1-hr diff & Extra 2 min
-            logging.info("submit_datetime:", submit_time)
-            logging.info("msg_time:", datetime.fromtimestamp(msg_datetime))
+            logging.critical("submit_datetime:", submit_time)
+            logging.critical("msg_time:", datetime.fromtimestamp(msg_datetime))
             delta_time = msg_datetime - submit_datetime
-            logging.info(delta_time)
+            logging.critical(delta_time)
 
         return last_message
     except Exception as err:
@@ -66,8 +66,8 @@ def extract_otp(message):
                 sender = d['value']
 
         # Printing the subject, sender's email and message
-        logging.info("Subject: ", subject)
-        logging.info("From: ", sender)
+        logging.critical("Subject: ", subject)
+        logging.critical("From: ", sender)
 
         if not ("info@blshelpline.com" in sender):
             return None
@@ -147,8 +147,8 @@ def extract_confirm_link(message):
                 sender = d['value']
 
         # Printing the subject, sender's email and message
-        logging.info("Subject: ", subject)
-        logging.info("From: ", sender)
+        logging.critical("Subject: ", subject)
+        logging.critical("From: ", sender)
 
         if not ("info.spain@blshelpline.com" in sender):
             return None

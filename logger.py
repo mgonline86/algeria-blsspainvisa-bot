@@ -2,15 +2,15 @@ import logging
 
 # Create logger
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.ERROR)
 
 # Create file handler
 file_handler = logging.FileHandler('logs.log', encoding='utf-8')
-file_handler.setLevel(logging.INFO)
+file_handler.setLevel(logging.ERROR)
 
 # Create stream handler
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)
+stream_handler.setLevel(logging.ERROR)
 
 # Create formatter
 formatter = logging.Formatter('[%(asctime)s](%(levelname)s): %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
