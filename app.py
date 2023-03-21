@@ -140,11 +140,13 @@ def main():
 
             logging.critical("We need to switch account!")
             #   ::TODO::  Handle Switch Account
+            logging.critical("Waiting for 30 min...")
+            time.sleep(30 * 60)
         except:
             logging.critical("No need to switch account.")
 
         if otp_was_sent:
-            raise ValueError("Current Account Expired, Try after 30 min!")
+            raise ValueError("Restarting App after 30 min!")
         
         try:
             logging.critical("Waiting for OTP Email...")
@@ -363,8 +365,8 @@ def main():
             
             logging.critical("Opening Verify URL in a New Browser")
             sub_options = Options()
-            # sub_options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
-            # sub_options.options.add_argument('--disable-gpu')
+            sub_options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
+            sub_options.options.add_argument('--disable-gpu')
             sub_options.add_argument('--window-size=1366,768')
             sub_driver = MyUDC(service=Service(ChromeDriverManager().install()), options=sub_options)
             sub_driver.get(verify_url)

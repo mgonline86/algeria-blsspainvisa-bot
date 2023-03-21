@@ -1,1 +1,1 @@
-.\env\Scripts\python.exe .\test.py
+.\env\Scripts\python.exe .\app.py
