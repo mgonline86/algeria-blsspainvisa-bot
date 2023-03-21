@@ -1,5 +1,6 @@
 import os
 import time
+import csv
 import json
 import re
 import base64
@@ -226,3 +227,21 @@ class DatePicker:
                 month += 1
 
         return datetime(year, month, day)
+    
+def log_to_csv(file_name, rows:list, header:list=None) -> None:
+    lines = 0
+    try:
+        with open(file_name, 'r', encoding='UTF8') as f:
+            reader = csv.reader(f)
+            lines = len(list(reader))
+    except:
+        pass
+
+    with open(file_name, 'a+', encoding='UTF8', newline='') as f:
+        writer = csv.writer(f)
+        if header and lines == 0:
+            # write the header
+            writer.writerow(header)
+
+        # write multiple rows
+        writer.writerows(rows)

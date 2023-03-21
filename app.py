@@ -21,7 +21,7 @@ import undetected_chromedriver as uc
 
 from webdriver_manager.chrome import ChromeDriverManager
 
-from helpers import find_new_message, extract_otp, extract_confirm_link, extract_otp_from_html, DatePicker, runner
+from helpers import find_new_message, extract_otp, extract_confirm_link, extract_otp_from_html, DatePicker, runner, log_to_csv
 from h2captcha import solve_hcaptcha
 
 
@@ -63,6 +63,7 @@ def main():
     # this parameter tells Chrome that
     # it should be run without UI (Headless)
     options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
+    options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1366,768')
 
     # initializing webdriver for Chrome with our options
@@ -363,6 +364,7 @@ def main():
             logging.critical("Opening Verify URL in a New Browser")
             sub_options = Options()
             # sub_options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
+            # sub_options.options.add_argument('--disable-gpu')
             sub_options.add_argument('--window-size=1366,768')
             sub_driver = MyUDC(service=Service(ChromeDriverManager().install()), options=sub_options)
             sub_driver.get(verify_url)
@@ -549,12 +551,16 @@ def main():
         try:
             logging.critical("Extracting Available Days Data...")
             datePicker = DatePicker(curr_month_date)
+            csv_header = ['Cell Date', 'Cell Title Attribute', 'Cell Classes']
+            csv_rows = []
             for td in tds:
                 td_title = td.get_attribute("title")
                 td_date = datePicker.get_element_date(td).date()
                 td_classes = td.get_attribute("class")
                 logging.critical(f"[{td_date}]:\ttitle: '{td_title}'\tclasses: '{td_classes}'")
+                csv_rows.append([td_date, td_title, td_classes])
             logging.critical("Extracted Available Days Data!")
+            log_to_csv('logs.csv', csv_rows, csv_header)
         except:
             raise ValueError("Couldn't Extract Available Days Data!")
   

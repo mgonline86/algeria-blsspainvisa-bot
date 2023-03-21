@@ -13,6 +13,7 @@ test.py
 
 # Log Files
 logs.log
+logs.csv
 
 # Local Files
 /lib
