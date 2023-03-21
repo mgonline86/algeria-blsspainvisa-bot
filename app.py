@@ -135,7 +135,7 @@ def main():
         otp_was_sent = None
 
         try:
-            print("Checking if we need to switch account...")
+            logging.critical("Checking if we need to switch account...")
             otp_was_sent = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div > div > div > div > div > p")))
 
             logging.critical("We need to switch account!")
@@ -441,7 +441,7 @@ def main():
                 f3_juridiction_select_2 = Select(driver.find_element(By.CSS_SELECTOR, "#juridiction"))
                 f3_juridiction_select_2.select_by_visible_text(juridiction_u_input)
                 logging.critical(f'Selected Juridiction is "{juridiction_u_input}"')
-                print("Waiting for 5 sec...")
+                logging.critical("Waiting for 5 sec...")
                 time.sleep(5)
             except:
                 raise ValueError("Couldn't Select Juridiction Again!")
@@ -520,9 +520,9 @@ def main():
 
         # Date Picker Page
         try:
-            print("Finding Date Picker Input...")
+            logging.critical("Finding Date Picker Input...")
             app_data = WebDriverWait(driver, 5).until(lambda x: x.find_element(By.ID, "app_date"))
-            print("Date Picker Input Found!")
+            logging.critical("Date Picker Input Found!")
         except:
             raise ValueError("Couldn't Find Date Picker!")
 
