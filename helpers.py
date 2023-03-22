@@ -29,10 +29,10 @@ def find_new_message(submit_time):
             msg_time = last_message.get("internalDate")
             msg_datetime = float(msg_time)/1000
             submit_datetime = submit_time.timestamp() - 3720  # ALG 1-hr diff & Extra 2 min
-            logging.critical("submit_datetime:", submit_time)
-            logging.critical("msg_time:", datetime.fromtimestamp(msg_datetime))
+            logging.critical(f"submit_datetime: {submit_time}")
+            logging.critical(f"msg_time: {datetime.fromtimestamp(msg_datetime)}" )
             delta_time = msg_datetime - submit_datetime
-            logging.critical(delta_time)
+            logging.critical(f"delta_time:  {delta_time}")
 
         return last_message
     except Exception as err:
@@ -67,8 +67,8 @@ def extract_otp(message):
                 sender = d['value']
 
         # Printing the subject, sender's email and message
-        logging.critical("Subject: ", subject)
-        logging.critical("From: ", sender)
+        logging.critical(f"Subject: {subject}")
+        logging.critical(f"From: {sender}")
 
         if not ("info@blshelpline.com" in sender):
             return None
@@ -148,8 +148,8 @@ def extract_confirm_link(message):
                 sender = d['value']
 
         # Printing the subject, sender's email and message
-        logging.critical("Subject: ", subject)
-        logging.critical("From: ", sender)
+        logging.critical(f"Subject: {subject}")
+        logging.critical(f"From: {sender}")
 
         if not ("info.spain@blshelpline.com" in sender):
             return None
