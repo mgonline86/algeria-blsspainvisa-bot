@@ -12,6 +12,7 @@ Last_View.png
 test.py
 
 # Log Files
+xlogs.log
 logs.log
 logs.csv
 

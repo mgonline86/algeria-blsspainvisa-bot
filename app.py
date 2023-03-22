@@ -306,7 +306,7 @@ def main():
             
         #     logging.info("Found Appointment Booking Form Input Fields!")
         # except Exception as err:
-        logging.error(err)
+        #     logging.error(err)
         #     raise ValueError("Couldn't Find Appointment Booking Form Input Fields!!")
             
         try:
@@ -444,6 +444,11 @@ def main():
                 logging.error("Couldn't Complete Verifying Process!")
                 logging.error(err)
             finally:
+                logging.info("Saving Last_View.png Screenshot Image...")
+                sub_driver.save_screenshot("Sub_Last_View.png")
+                logging.info("Waiting for 2 sec...")
+                time.sleep(2)
+                logging.info("Closing Browser!")
                 sub_driver.quit()
 
             if verify_otp:
@@ -592,14 +597,15 @@ def main():
         try:
             logging.info("Extracting Available Days Data...")
             datePicker = DatePicker(curr_month_date)
-            csv_header = ['Cell Date', 'Cell Title Attribute', 'Cell Classes']
+            csv_header = ['Run DateTime', 'Cell Date', 'Cell Title Attribute', 'Cell Classes']
             csv_rows = []
+            run_datetime = datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')
             for td in tds:
                 td_title = td.get_attribute("title")
                 td_date = datePicker.get_element_date(td).date()
                 td_classes = td.get_attribute("class")
                 logging.info(f"[{td_date}]:\ttitle: '{td_title}'\tclasses: '{td_classes}'")
-                csv_rows.append([td_date, td_title, td_classes])
+                csv_rows.append([run_datetime, td_date, td_title, td_classes])
             logging.info("Extracted Available Days Data!")
             log_to_csv('logs.csv', csv_rows, csv_header)
         except Exception as err:
