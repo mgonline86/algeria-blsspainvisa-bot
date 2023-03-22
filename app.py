@@ -51,8 +51,7 @@ def check_for_wait_time_page(driver):
             logging.info(f"Couldn't Detect Exact Waiting Time")
             logging.warning(f"Waiting for 10 min due to high volume of traffic Just in case...")
             time.sleep(10*60)
-    except Exception as err:
-        logging.error(err)
+    except:
         logging.info("Couldn't find any waiting time!")
 
 
@@ -150,8 +149,7 @@ def main():
             #   ::TODO::  Handle Switch Account
             logging.info("Waiting for 30 min...")
             time.sleep(30 * 60)
-        except Exception as err:
-            logging.error(err)
+        except:
             logging.info("No need to switch account.")
 
         if otp_was_sent:
@@ -386,6 +384,7 @@ def main():
             logging.info(f"Verify URL is ({verify_url})")
             
             logging.info("Opening Verify URL in a New Browser")
+            
             sub_options = Options()
             sub_options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
             sub_options.add_argument('--disable-gpu')
