@@ -32,26 +32,26 @@ def solve_hcaptcha(sitekey:str, url:str) -> str:
         logging.error("Error at solve_hcaptcha():\n")
         logging.error(e)
 
-    logging.critical("result:\n", result)    
+    logging.info(f"result:\n{result}")    
     return result.get("code")
 
 def pass_form_captcha(driver, submit_btn):
     challenge_div = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-sitekey]")))
-    logging.critical("Started Solver...")
+    logging.info("Started Solver...")
     hc_sitekey = challenge_div.get_attribute('data-sitekey')
-    logging.critical("sitekey:", hc_sitekey)
+    logging.info(f"sitekey: {hc_sitekey}")
     hc_page_url = driver.current_url
-    logging.critical("page_url:", hc_page_url)
+    logging.info(f"page_url: {hc_page_url}")
     captcha_token = solve_hcaptcha(hc_sitekey, hc_page_url)
-    logging.critical("captcha_token:", captcha_token)
+    logging.info(f"captcha_token: {captcha_token}")
     driver.execute_script(
         """
         document.getElementsByName('h-captcha-response')[0].innerHTML = arguments[0]
         """,
         captcha_token,
     )
-    logging.critical("waiting 2 sec")
+    logging.info("waiting 2 sec")
     time.sleep(2)
     submit_btn.click()
-    logging.critical("waiting 2 sec")
+    logging.info("waiting 2 sec")
     time.sleep(2)
