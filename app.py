@@ -64,6 +64,7 @@ def main():
     # it should be run without UI (Headless)
     options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
     options.add_argument('--disable-gpu')
+    options.add_argument('--disable-popup-blocking')
     options.add_argument('--window-size=1366,768')
 
     # initializing webdriver for Chrome with our options
@@ -383,73 +384,67 @@ def main():
                 raise ValueError("Couldn't Retrive Verify URL!")
             logging.info(f"Verify URL is ({verify_url})")
             
-            logging.info("Opening Verify URL in a New Browser")
-            
-            sub_options = Options()
-            sub_options.add_argument('--headless')  # Uncomment this line If you want to run headless driver
-            sub_options.add_argument('--disable-gpu')
-            sub_options.add_argument('--window-size=1366,768')
-            sub_driver = MyUDC(service=Service(ChromeDriverManager().install()), options=sub_options)
-            sub_driver.get(verify_url)
-            logging.info("Waiting for 3 sec...")
-            time.sleep(3)
-
-            check_for_wait_time_page(sub_driver)
-
-            verify_otp = None
+            logging.info("Started Verifying Process...")
+            verify_otp = None            
             try:
-                logging.info("Started Verifying Process...")
-                try:
-                    logging.info("Searching for Email Input...")
-                    WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
-                    logging.info("Email Input Found!")
-                except Exception as err:
-                    logging.error(err)
-                    raise ValueError("Couldn't Find Email Input!")
-                    
-                try:
-                    logging.info(f'Entering Email as "{email_u_input}"...')
-                    sub_driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
-                    logging.info(f'Entered Email as "{email_u_input}"!')
-                    logging.info("Waiting for 1 sec...")
-                    time.sleep(1)
-                except Exception as err:
-                    logging.error(err)
-                    raise ValueError("Couldn't Enter Email!")
-                    
-                try:
-                    logging.info("Pressing Submit Button...")
-                    sub_driver.execute_script('''document.querySelector("[type=submit]").click()''')
-                    logging.info("Pressed Submit Button!")
-                except Exception as err:
-                    logging.error(err)
-                    raise ValueError("Couldn't Press Submit Button!")
-                    
-                try:
-                    logging.info("Searching for OTP div...")
-                    verify_otp_div = WebDriverWait(sub_driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".blurry-text")))
-                    logging.info("OTP div Found!")
-                except Exception as err:
-                    logging.error(err)
-                    raise ValueError("Couldn't Find OTP div!")
-                    
-                try:
-                    logging.info("Extracting Verify OTP...")
-                    verify_otp = extract_otp_from_html(verify_otp_div.text)
-                    logging.info(f'Extracted Verify OTP is "{verify_otp}"!')
-                except Exception as err:
-                    logging.error(err)
-                    raise ValueError("Couldn't Extracting Verify OTP!")
-            except Exception as err:        
-                logging.error("Couldn't Complete Verifying Process!")
+                logging.info("Opening Verify URL in a New Tab...")
+                # Open a new tab
+                driver.execute_script(f"window.open('{verify_url}');")
+                # Switch to the new window and open new URL
+                driver.switch_to.window(driver.window_handles[1])
+            except Exception as err:
                 logging.error(err)
-            finally:
-                logging.info("Saving Last_View.png Screenshot Image...")
-                sub_driver.save_screenshot("Sub_Last_View.png")
-                logging.info("Waiting for 2 sec...")
-                time.sleep(2)
-                logging.info("Closing Browser!")
-                sub_driver.quit()
+                raise ValueError("Couldn't Open Verify URL in a New Tab!")
+
+            check_for_wait_time_page(driver)
+
+            try:
+                logging.info("Searching for Email Input...")
+                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name=email]")))
+                logging.info("Email Input Found!")
+            except Exception as err:
+                logging.error(err)
+                raise ValueError("Couldn't Find Email Input!")
+                
+            try:
+                logging.info(f'Entering Email as "{email_u_input}"...')
+                driver.execute_script(f'''document.querySelector("[name=email]").value = `{email_u_input}`''')
+                logging.info(f'Entered Email as "{email_u_input}"!')
+                logging.info("Waiting for 1 sec...")
+                time.sleep(1)
+            except Exception as err:
+                logging.error(err)
+                raise ValueError("Couldn't Enter Email!")
+                
+            try:
+                logging.info("Pressing Submit Button...")
+                driver.execute_script('''document.querySelector("[type=submit]").click()''')
+                logging.info("Pressed Submit Button!")
+            except Exception as err:
+                logging.error(err)
+                raise ValueError("Couldn't Press Submit Button!")
+                
+            try:
+                logging.info("Searching for OTP div...")
+                verify_otp_div = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".blurry-text")))
+                logging.info("OTP div Found!")
+            except Exception as err:
+                logging.error(err)
+                raise ValueError("Couldn't Find OTP div!")
+                
+            try:
+                logging.info("Extracting Verify OTP...")
+                verify_otp = extract_otp_from_html(verify_otp_div.text)
+                logging.info(f'Extracted Verify OTP is "{verify_otp}"!')
+            except Exception as err:
+                logging.error(err)
+                raise ValueError("Couldn't Extracting Verify OTP!")
+        
+            # Closing new_url tab
+            driver.close()
+
+            # Switching to old tab
+            driver.switch_to.window(driver.window_handles[0])
 
             if verify_otp:
                 try:
