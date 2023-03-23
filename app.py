@@ -491,12 +491,12 @@ def main():
                 challenge_div = driver.find_element(By.CSS_SELECTOR, "[data-sitekey]")
                 logging.info("Started Solver...")
                 hc_sitekey = challenge_div.get_attribute('data-sitekey')
-                logging.info("sitekey:", hc_sitekey)
+                logging.info(f"sitekey: {hc_sitekey}")
                 hc_page_url = driver.current_url
-                logging.info("page_url:", hc_page_url)
+                logging.info(f"page_url: {hc_page_url}")
                 logging.info("Solving hcaptcha...")
                 captcha_token = solve_hcaptcha(hc_sitekey, hc_page_url)
-                logging.info("captcha_solution:", captcha_token)
+                logging.info(f"captcha_solution: {captcha_token}")
                 driver.execute_script(
                     """
                     document.getElementsByName('h-captcha-response')[0].innerHTML = arguments[0]
