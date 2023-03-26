@@ -23,6 +23,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from helpers import find_new_message, extract_otp, extract_confirm_link, extract_otp_from_html, DatePicker, runner, log_to_csv
 from h2captcha import solve_hcaptcha
+from g_api import GOOGLE
 
 
 # Prevent undetected_chromedriver from auto-close browser
@@ -594,14 +595,26 @@ def main():
             datePicker = DatePicker(curr_month_date)
             csv_header = ['Run DateTime', 'Cell Date', 'Cell Title Attribute', 'Cell Classes']
             csv_rows = []
+            is_open = False
+            open_dates = []
             run_datetime = datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')
             for td in tds:
                 td_title = td.get_attribute("title")
                 td_date = datePicker.get_element_date(td).date()
                 td_classes = td.get_attribute("class")
-                logging.info(f"[{td_date}]:\ttitle: '{td_title}'\tclasses: '{td_classes}'")
+                if td_title == "Book":
+                    is_open = True
+                    open_dates.append(str(td_date))
+                logging.critical(f"[{td_date}]:\ttitle: '{td_title}'\tclasses: '{td_classes}'")
                 csv_rows.append([run_datetime, td_date, td_title, td_classes])
-            logging.info("Extracted Available Days Data!")
+                
+            if is_open:
+                dates_a = '\n'.join(open_dates)
+                _message = f"""Available Dates are:\n{dates_a}"""
+                g = GOOGLE()
+                g.send_message("samidmn73@gmail.com,mgonline87@gmail.com", "There is Available Day(s) to Apply!!!", _message)
+            
+            logging.critical("Extracted Available Days Data!")
             log_to_csv('logs.csv', csv_rows, csv_header)
         except Exception as err:
             logging.error(err)
